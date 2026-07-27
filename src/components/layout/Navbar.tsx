@@ -1,0 +1,50 @@
+import { Link } from 'react-router-dom';
+import { Sun, Moon, User } from 'lucide-react';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useThemeStore } from '@/store/useThemeStore';
+import { Button } from '@/components/ui/button';
+
+export const Navbar = () => {
+  const { user, isAuthenticated, logout } = useAuthStore();
+  const { isDarkMode, toggleTheme } = useThemeStore();
+
+  return (
+    <header className="w-full border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto flex justify-between items-center py-3 px-6">
+        <Link to="/" className="flex items-center gap-3">
+          <span className="text-2xl font-black tracking-tighter text-red-600">TWITBET</span>
+        </Link>
+
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={toggleTheme}
+            className="h-9 w-9 rounded-lg border-neutral-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-700 dark:text-yellow-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          >
+            {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+          </Button>
+
+          {isAuthenticated ? (
+            <div className="flex items-center gap-3">
+              <Link to="/profile">
+                <Button variant="ghost" size="sm" className="flex items-center gap-2 text-xs font-semibold">
+                  <User size={16} />
+                  <span>{user?.username}</span>
+                </Button>
+              </Link>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={logout}
+                className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase"
+              >
+                Cerrar Sesión
+              </Button>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </header>
+  );
+};

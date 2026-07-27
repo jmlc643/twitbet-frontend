@@ -18,12 +18,24 @@ export default function App() {
   const [username, setUsername] = useState('');
 
   const getErrorMessage = (err: unknown): string => {
-    if (isAxiosError<{ error?: string }>(err)) {
-      return err.response?.data?.error || err.message;
+    if (isAxiosError<{ error?: string | { message?: string } }>(err)) {
+      const apiError = err.response?.data?.error;
+
+      if (typeof apiError === 'string') {
+        return apiError;
+      }
+
+      if (typeof apiError === 'object' && apiError !== null && 'message' in apiError) {
+        return String(apiError.message);
+      }
+
+      return err.message || 'Error de red o comunicación con el servidor';
     }
+
     if (err instanceof Error) {
       return err.message;
     }
+
     return 'Ocurrió un error inesperado';
   };
 

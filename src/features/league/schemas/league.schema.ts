@@ -8,3 +8,9 @@ export const createLeagueSchema = z.object({
 });
 
 export type CreateLeagueInput = z.infer<typeof createLeagueSchema>;
+
+export const joinLeagueSchema = z.object({
+  invite_code: z.string().length(8, 'El código debe tener exactamente 8 caracteres').toUpperCase(),
+});
+
+export type JoinLeagueInput = z.infer<typeof joinLeagueSchema>;

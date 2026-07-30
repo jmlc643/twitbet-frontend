@@ -5,10 +5,10 @@ export const ProfileCard = () => {
   const user = useAuthStore((state) => state.user);
 
   return (
-    <Card className="w-full max-w-2xl mx-auto border bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100 shadow-xl transition-colors duration-200">
+    <Card className="w-full h-full flex flex-col justify-center max-w-2xl mx-auto border bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100 shadow-xl transition-colors duration-200">
       <CardContent className="p-6">
-        <div className="flex flex-col sm:flex-row items-center gap-6">
-          <div className="relative">
+        <div className="flex flex-col xl:flex-row items-center gap-6">
+          <div className="relative shrink-0">
             <img
               src={user?.avatar_url || '/avatars/avatar1.png'}
               alt="Avatar"

@@ -68,7 +68,7 @@ export const JoinLeagueModal = () => {
       <DialogTrigger asChild>
         <Button 
           variant="outline"
-          className="w-full sm:w-auto bg-white/5 dark:bg-neutral-900/50 backdrop-blur-sm border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-900 dark:text-white font-bold uppercase py-6 px-12 text-sm shadow-sm transition-all duration-300"
+          className="w-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 border-neutral-300 dark:bg-[#2A2A2A] dark:hover:bg-[#333333] dark:border-white/10 dark:text-white font-bold uppercase py-5 rounded-xl text-sm shadow-lg transition-all duration-300 hover:-translate-y-0.5"
         >
           Unirse a Liga
         </Button>

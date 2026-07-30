@@ -19,3 +19,17 @@ export interface JoinLeagueResponse {
   league_name: string;
   balance: number;
 }
+
+export type LeagueRole = 'ADMIN' | 'MIEMBRO';
+
+export interface LeagueSummary {
+  league_id: string;
+  name: string;
+  role: LeagueRole;
+  participant_count: number;
+  balance: number;
+}
+
+export interface GetUserLeaguesResponse {
+  leagues: LeagueSummary[] | null;
+}

@@ -4,6 +4,7 @@ import { LandingPage } from '@/pages/LandingPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { CreateLeaguePage } from '@/pages/CreateLeaguePage';
+import { LeagueDetailsPage } from '@/pages/LeagueDetailsPage';
 
 export const AppRouter = () => {
   return (
@@ -15,6 +16,7 @@ export const AppRouter = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/leagues/create" element={<CreateLeaguePage />} />
+        <Route path="/leagues/:id" element={<LeagueDetailsPage />} />
       </Route>
 
       {/* Fallback 404 */}

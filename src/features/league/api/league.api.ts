@@ -4,7 +4,9 @@ import type {
   CreateLeagueResponse, 
   JoinLeagueRequest, 
   JoinLeagueResponse,
-  GetUserLeaguesResponse
+  GetUserLeaguesResponse,
+  GetLeagueDetailsResponse,
+  UpdateLeagueSettingsRequest
 } from '../types/league.types';
 
 export const leagueApi = {
@@ -21,5 +23,14 @@ export const leagueApi = {
   getUserLeagues: async (): Promise<GetUserLeaguesResponse> => {
     const response = await api.get<GetUserLeaguesResponse>('/leagues');
     return response.data;
+  },
+
+  getLeagueDetails: async (id: string): Promise<GetLeagueDetailsResponse> => {
+    const response = await api.get<GetLeagueDetailsResponse>(`/leagues/${id}`);
+    return response.data;
+  },
+
+  updateLeagueSettings: async (id: string, data: UpdateLeagueSettingsRequest): Promise<void> => {
+    await api.patch(`/leagues/${id}/settings`, data);
   }
 };

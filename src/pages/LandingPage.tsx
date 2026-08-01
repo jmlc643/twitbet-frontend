@@ -1,7 +1,10 @@
-import { Trophy, Users, ShieldCheck } from 'lucide-react';
-import { AuthFormCard } from '@/features/auth/components/AuthFormCard';
+import { Trophy, Users, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export const LandingPage = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center min-h-[calc(100vh-140px)]">
       <div className="lg:col-span-7 space-y-8 text-left">
@@ -36,8 +39,24 @@ export const LandingPage = () => {
         </div>
       </div>
 
-      <div className="lg:col-span-5">
-        <AuthFormCard />
+      <div className="lg:col-span-5 flex flex-col justify-center items-center">
+        <div className="bg-white/50 dark:bg-neutral-900/50 p-8 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-xl backdrop-blur-md text-center max-w-md w-full">
+          <h2 className="text-2xl font-bold mb-4">
+            {isAuthenticated ? '¡Bienvenido de nuevo!' : '¿Listo para jugar?'}
+          </h2>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-8">
+            {isAuthenticated
+              ? 'Ve a tu perfil para gestionar tus ligas y predicciones.'
+              : 'Únete hoy a la plataforma líder en ligas privadas.'}
+          </p>
+          
+          <Link to={isAuthenticated ? "/profile" : "/auth"} className="w-full">
+            <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-6 text-lg rounded-xl shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] transition-all duration-300 group">
+              {isAuthenticated ? 'Ir a Mi Perfil' : 'Comenzar Ahora'}
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

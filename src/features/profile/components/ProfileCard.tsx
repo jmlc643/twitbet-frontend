@@ -1,27 +1,32 @@
 import { useAuthStore } from '@/store/useAuthStore';
 import { Card, CardContent } from '@/components/ui/card';
+import { EditProfileModal } from './EditProfileModal';
+import { UserAvatar } from '@/components/shared/UserAvatar';
 
 export const ProfileCard = () => {
   const user = useAuthStore((state) => state.user);
 
   return (
-    <Card className="w-full h-full flex flex-col justify-center max-w-2xl mx-auto border bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100 shadow-xl transition-colors duration-200">
+    <Card className="w-full h-full flex flex-col justify-center max-w-2xl mx-auto border bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100 shadow-xl transition-colors duration-200 relative overflow-hidden">
+      <div className="absolute top-4 right-4 z-10">
+        <EditProfileModal />
+      </div>
       <CardContent className="p-6">
-        <div className="flex flex-col xl:flex-row items-center gap-6">
+        <div className="flex flex-col xl:flex-row items-center gap-6 mt-4">
           <div className="relative shrink-0">
-            <img
-              src={user?.avatar_url || '/avatars/avatar1.png'}
-              alt="Avatar"
-              className="w-24 h-24 rounded-full border-4 border-red-600 object-cover bg-neutral-800"
+            <UserAvatar 
+              avatarUrl={user?.avatar_url} 
+              username={user?.username} 
+              className="w-24 h-24 rounded-full border-4 border-red-600 text-4xl"
             />
             <span className="absolute bottom-0 right-0 w-5 h-5 rounded-full border-2 border-white dark:border-neutral-900 bg-green-500" />
           </div>
 
           <div className="flex-1 text-center sm:text-left space-y-1">
-            <h2 className="text-2xl font-black text-neutral-900 dark:text-white">
+            <h2 className="text-2xl font-black text-neutral-900 dark:text-white truncate max-w-[200px] sm:max-w-full">
               {user?.username}
             </h2>
-            <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400">
+            <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 truncate">
               {user?.email}
             </p>
             <div className="flex flex-wrap gap-2 pt-2 justify-center sm:justify-start">

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Pencil, Check } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Pencil, Check, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -24,11 +24,14 @@ export const EditProfileModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       setUsername(user?.username || '');
       setAvatarUrl(user?.avatar_url || '');
+      setAvatarFile(null);
       setError(null);
     }
   }, [isOpen, user]);
@@ -48,8 +51,15 @@ export const EditProfileModal = () => {
     setError(null);
 
     try {
-      await authApi.updateProfile({ username, avatar_url: avatarUrl }, token);
-      updateUser({ username, avatar_url: avatarUrl });
+      let finalAvatarUrl = avatarUrl;
+      
+      if (avatarFile) {
+        const uploadResult = await authApi.uploadAvatar(avatarFile, token);
+        finalAvatarUrl = uploadResult.avatar_url;
+      }
+
+      await authApi.updateProfile({ username, avatar_url: finalAvatarUrl }, token);
+      updateUser({ username, avatar_url: finalAvatarUrl });
       setIsOpen(false);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al actualizar el perfil');
@@ -83,21 +93,77 @@ export const EditProfileModal = () => {
             </div>
 
             <div>
-              <label className="text-sm font-semibold mb-2 block">Foto de Perfil</label>
-              <div className="grid grid-cols-4 gap-3">
+              <label className="text-sm font-semibold mb-2 block flex items-center justify-between">
+                <span>Foto de Perfil</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  ref={fileInputRef}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      const file = e.target.files[0];
+                      setAvatarFile(file);
+                      setAvatarUrl(URL.createObjectURL(file));
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="h-8 text-xs gap-1.5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10"
+                >
+                  <Upload size={14} /> Subir desde PC
+                </Button>
+              </label>
+              <div className="grid grid-cols-4 gap-3 mt-2">
+                {/* Si hay un archivo subido o si ya tiene una foto personalizada (que no está en AVATARS), la mostramos */}
+                {(avatarFile || (user?.avatar_url && !AVATARS.includes(user.avatar_url))) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!avatarFile && user?.avatar_url) {
+                        setAvatarUrl(user.avatar_url);
+                      }
+                    }}
+                    className={`relative rounded-xl overflow-hidden aspect-square border-2 transition-all ${
+                      (avatarFile) || (avatarUrl === user?.avatar_url && !avatarFile)
+                        ? 'border-red-600 scale-105 shadow-lg ring-2 ring-red-600/20'
+                        : 'border-transparent hover:border-neutral-300 dark:hover:border-neutral-700 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <img 
+                      src={avatarFile ? avatarUrl : user?.avatar_url!} 
+                      alt="Avatar personalizado" 
+                      className="w-full h-full object-cover bg-neutral-100 dark:bg-neutral-800" 
+                    />
+                    {((avatarFile) || (avatarUrl === user?.avatar_url && !avatarFile)) && (
+                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                        <div className="bg-red-600 rounded-full p-1 text-white">
+                           <Check size={16} />
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                )}
                 {AVATARS.map((avatar) => (
                   <button
                     key={avatar}
                     type="button"
-                    onClick={() => setAvatarUrl(avatar)}
+                    onClick={() => {
+                      setAvatarFile(null);
+                      setAvatarUrl(avatar);
+                    }}
                     className={`relative rounded-xl overflow-hidden aspect-square border-2 transition-all ${
-                      avatarUrl === avatar
+                      avatarUrl === avatar && !avatarFile
                         ? 'border-red-600 scale-105 shadow-lg ring-2 ring-red-600/20'
                         : 'border-transparent hover:border-neutral-300 dark:hover:border-neutral-700 opacity-70 hover:opacity-100'
                     }`}
                   >
                     <img src={avatar} alt="Avatar option" className="w-full h-full object-cover bg-neutral-100 dark:bg-neutral-800" />
-                    {avatarUrl === avatar && (
+                    {avatarUrl === avatar && !avatarFile && (
                       <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                         <div className="bg-red-600 rounded-full p-1 text-white">
                            <Check size={16} />
@@ -115,7 +181,10 @@ export const EditProfileModal = () => {
                   type="button"
                   variant="destructive"
                   size="sm"
-                  onClick={() => setAvatarUrl('')}
+                  onClick={() => {
+                    setAvatarFile(null);
+                    setAvatarUrl('');
+                  }}
                   disabled={avatarUrl === ''}
                   className={avatarUrl === '' ? 'opacity-50 cursor-not-allowed' : ''}
                 >

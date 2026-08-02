@@ -25,4 +25,17 @@ export const authApi = {
     });
     return response.data;
   },
+
+  uploadAvatar: async (file: File, token?: string): Promise<{ avatar_url: string }> => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const response = await api.post<{ avatar_url: string }>('/users/me/avatar', formData, {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
 };

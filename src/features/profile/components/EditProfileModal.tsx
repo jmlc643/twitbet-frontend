@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Pencil } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Pencil, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -22,8 +22,16 @@ const AVATARS = [
 export const EditProfileModal = () => {
   const { user, token, updateUser } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [username, setUsername] = useState(user?.username || '');
-  const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
+  const [username, setUsername] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setUsername(user?.username || '');
+      setAvatarUrl(user?.avatar_url || '');
+      setError(null);
+    }
+  }, [isOpen, user]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,11 +39,16 @@ export const EditProfileModal = () => {
     e.preventDefault();
     if (!token) return;
 
+    if (!username.trim()) {
+      setError('El nombre de usuario es obligatorio');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      await authApi.updateProfile({ username, avatarUrl }, token);
+      await authApi.updateProfile({ username, avatar_url: avatarUrl }, token);
       updateUser({ username, avatar_url: avatarUrl });
       setIsOpen(false);
     } catch (err: any) {
@@ -79,21 +92,36 @@ export const EditProfileModal = () => {
                     onClick={() => setAvatarUrl(avatar)}
                     className={`relative rounded-xl overflow-hidden aspect-square border-2 transition-all ${
                       avatarUrl === avatar
-                        ? 'border-red-600 scale-105 shadow-lg'
-                        : 'border-transparent hover:border-neutral-300 dark:hover:border-neutral-700'
+                        ? 'border-red-600 scale-105 shadow-lg ring-2 ring-red-600/20'
+                        : 'border-transparent hover:border-neutral-300 dark:hover:border-neutral-700 opacity-70 hover:opacity-100'
                     }`}
                   >
                     <img src={avatar} alt="Avatar option" className="w-full h-full object-cover bg-neutral-100 dark:bg-neutral-800" />
+                    {avatarUrl === avatar && (
+                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                        <div className="bg-red-600 rounded-full p-1 text-white">
+                           <Check size={16} />
+                        </div>
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>
-              <button
-                type="button"
-                onClick={() => setAvatarUrl('')}
-                className="mt-3 text-xs text-red-600 hover:underline"
-              >
-                Quitar foto de perfil
-              </button>
+              <div className="mt-4 flex items-center justify-between p-3 rounded-lg border dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+                <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                  {avatarUrl === '' ? 'No hay foto seleccionada' : 'Foto de perfil seleccionada'}
+                </span>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setAvatarUrl('')}
+                  disabled={avatarUrl === ''}
+                  className={avatarUrl === '' ? 'opacity-50 cursor-not-allowed' : ''}
+                >
+                  Quitar foto
+                </Button>
+              </div>
             </div>
           </div>
 

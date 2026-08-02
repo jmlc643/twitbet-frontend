@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
-import { Sun, Moon, User } from 'lucide-react';
+import { Sun, Moon } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useThemeStore } from '@/store/useThemeStore';
 import { Button } from '@/components/ui/button';
+import { UserAvatar } from '@/components/shared/UserAvatar';
 
 export const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -29,7 +30,7 @@ export const Navbar = () => {
             <div className="flex items-center gap-3">
               <Link to="/profile">
                 <Button variant="ghost" size="sm" className="flex items-center gap-2 text-xs font-semibold">
-                  <User size={16} />
+                  <UserAvatar avatarUrl={user?.avatar_url} username={user?.username} className="w-5 h-5 rounded-full text-[10px]" />
                   <span>{user?.username}</span>
                 </Button>
               </Link>

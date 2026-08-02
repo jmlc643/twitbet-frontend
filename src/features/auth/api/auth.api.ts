@@ -18,4 +18,11 @@ export const authApi = {
     });
     return response.data;
   },
+
+  updateProfile: async (data: { username?: string; avatarUrl?: string }, token?: string): Promise<{ message: string }> => {
+    const response = await api.put<{ message: string }>('/users/me', data, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    return response.data;
+  },
 };

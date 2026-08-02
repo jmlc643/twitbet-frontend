@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import Cookies from 'js-cookie';
 import type { User } from '@/features/auth/types/auth.types';
+import { authApi } from '@/features/auth/api/auth.api';
 
 const TOKEN_KEY = 'twitbet_token';
 
@@ -10,7 +11,8 @@ interface AuthState {
   isAuthenticated: boolean;
   setAuth: (user: User, token: string) => void;
   logout: () => void;
-  initAuth: () => void;
+  initAuth: () => Promise<void>;
+  updateUser: (data: Partial<User>) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -28,10 +30,23 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user: null, token: null, isAuthenticated: false });
   },
 
-  initAuth: () => {
+  initAuth: async () => {
     const token = Cookies.get(TOKEN_KEY);
     if (!token) {
       set({ user: null, token: null, isAuthenticated: false });
+      return;
+    }
+    
+    try {
+      const user = await authApi.getProfile(token);
+      set({ user, token, isAuthenticated: true });
+    } catch (error) {
+      Cookies.remove(TOKEN_KEY);
+      set({ user: null, token: null, isAuthenticated: false });
     }
   },
+
+  updateUser: (data) => set((state) => ({
+    user: state.user ? { ...state.user, ...data } : null
+  })),
 }));

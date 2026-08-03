@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { isAxiosError } from 'axios';
 import { Pencil, Check, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,16 +28,19 @@ export const EditProfileModal = () => {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      setUsername(user?.username || '');
-      setAvatarUrl(user?.avatar_url || '');
-      setAvatarFile(null);
-      setError(null);
-    }
-  }, [isOpen, user]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        setUsername(user?.username || '');
+        setAvatarUrl(user?.avatar_url || '');
+        setAvatarFile(null);
+        setError(null);
+      }, 0);
+    }
+  }, [isOpen, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,8 +65,12 @@ export const EditProfileModal = () => {
       await authApi.updateProfile({ username, avatar_url: finalAvatarUrl }, token);
       updateUser({ username, avatar_url: finalAvatarUrl });
       setIsOpen(false);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al actualizar el perfil');
+    } catch (err: unknown) {
+      if (isAxiosError<{ message?: string }>(err)) {
+        setError(err.response?.data?.message || 'Error al actualizar el perfil');
+      } else {
+        setError('Error al actualizar el perfil');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -135,7 +143,7 @@ export const EditProfileModal = () => {
                     }`}
                   >
                     <img 
-                      src={avatarFile ? avatarUrl : user?.avatar_url!} 
+                      src={avatarFile ? avatarUrl : (user?.avatar_url || '')} 
                       alt="Avatar personalizado" 
                       className="w-full h-full object-cover bg-neutral-100 dark:bg-neutral-800" 
                     />

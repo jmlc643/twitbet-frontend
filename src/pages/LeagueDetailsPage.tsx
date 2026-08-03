@@ -1,16 +1,27 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leagueApi } from '@/features/league/api/league.api';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users, Trophy, Wallet, Settings, EyeOff } from 'lucide-react';
+import { ArrowLeft, Users, Trophy, Wallet, Settings, EyeOff, Trash2, AlertTriangle } from 'lucide-react';
+import { EditLeagueModal } from '@/features/league/components/EditLeagueModal';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 export const LeagueDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const { data: league, isLoading, isError } = useQuery({
     queryKey: ['league', id],
@@ -18,11 +29,11 @@ export const LeagueDetailsPage = () => {
     enabled: !!id,
   });
 
-  const mutation = useMutation({
-    mutationFn: (newSettings: { is_ranking_visible: boolean }) =>
-      leagueApi.updateLeagueSettings(id!, newSettings),
+  const deleteMutation = useMutation({
+    mutationFn: () => leagueApi.deleteLeague(id!),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['league', id] });
+      queryClient.invalidateQueries({ queryKey: ['userLeagues'] });
+      navigate('/profile');
     },
   });
 
@@ -56,8 +67,8 @@ export const LeagueDetailsPage = () => {
 
   const isAdmin = user?.id === league.admin_id;
 
-  const handleToggleRanking = () => {
-    mutation.mutate({ is_ranking_visible: !league.is_ranking_visible });
+  const handleDeleteLeague = () => {
+    deleteMutation.mutate();
   };
 
   return (
@@ -111,36 +122,52 @@ export const LeagueDetailsPage = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <label className="text-sm font-medium text-neutral-800 dark:text-zinc-200">
-                    Ranking Visible
-                  </label>
-                  <p className="text-xs text-neutral-500 dark:text-zinc-500">
-                    Oculta el ranking para todos.
-                  </p>
+              <div className="flex flex-col gap-3">
+                <div className="w-full">
+                  <EditLeagueModal league={league} />
                 </div>
-                <button
-                  type="button"
-                  onClick={handleToggleRanking}
-                  disabled={mutation.isPending}
-                  className={`
-                    relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent 
-                    transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-zinc-900
-                    ${league.is_ranking_visible ? 'bg-indigo-500' : 'bg-neutral-300 dark:bg-zinc-700'}
-                    ${mutation.isPending ? 'opacity-50 cursor-not-allowed' : ''}
-                  `}
-                >
-                  <span className="sr-only">Toggle ranking visibility</span>
-                  <span
-                    aria-hidden="true"
-                    className={`
-                      pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 
-                      transition duration-200 ease-in-out
-                      ${league.is_ranking_visible ? 'translate-x-5' : 'translate-x-0'}
-                    `}
-                  />
-                </button>
+                <div className="w-full">
+                  <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/30 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Eliminar Liga
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md bg-white/90 dark:bg-neutral-950/90 backdrop-blur-xl border-neutral-200/50 dark:border-neutral-800/50 shadow-2xl">
+                      <DialogHeader>
+                        <div className="mx-auto w-12 h-12 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center mb-4">
+                          <AlertTriangle className="w-6 h-6" />
+                        </div>
+                        <DialogTitle className="text-xl font-bold text-center">
+                          ¿Eliminar esta liga?
+                        </DialogTitle>
+                        <DialogDescription className="text-center">
+                          Esta acción es irreversible. Se eliminarán todas las participaciones y el historial de la liga.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="flex justify-center gap-3 pt-4">
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsDeleteDialogOpen(false)}
+                          disabled={deleteMutation.isPending}
+                        >
+                          Cancelar
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={handleDeleteLeague}
+                          disabled={deleteMutation.isPending}
+                        >
+                          {deleteMutation.isPending ? 'Eliminando...' : 'Sí, eliminar liga'}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </div>
             </CardContent>
           </Card>

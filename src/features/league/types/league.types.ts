@@ -55,6 +55,9 @@ export interface GetLeagueDetailsResponse {
   participants: Participant[] | null;
 }
 
-export interface UpdateLeagueSettingsRequest {
-  is_ranking_visible: boolean;
+export interface UpdateLeagueRequest {
+  name: string;
+  initial_balance: number;
+  max_recharges: number;
+  hide_standings: boolean;
 }

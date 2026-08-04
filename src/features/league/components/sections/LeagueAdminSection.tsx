@@ -3,6 +3,8 @@ import { Settings, Trash2, AlertTriangle } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EditLeagueModal } from '@/features/league/components/EditLeagueModal';
+import { CreateMatchModal } from '@/features/league/components/CreateMatchModal';
+import { CreateMarketModal } from '@/features/league/components/CreateMarketModal';
 import {
   Dialog,
   DialogContent,
@@ -39,6 +41,12 @@ export const LeagueAdminSection = ({ league, onDelete, isDeleting }: LeagueAdmin
         <div className="flex flex-col gap-3">
           <div className="w-full">
             <EditLeagueModal league={league} />
+          </div>
+          <div className="w-full">
+            <CreateMatchModal leagueId={league.league_id} />
+          </div>
+          <div className="w-full">
+            <CreateMarketModal leagueId={league.league_id} />
           </div>
           <div className="w-full">
             <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

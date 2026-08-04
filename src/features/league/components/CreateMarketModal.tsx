@@ -1,0 +1,211 @@
+import { useState } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { isAxiosError } from 'axios';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { leagueApi } from '@/features/league/api/league.api';
+import { createMarketSchema, type CreateMarketInput } from '@/features/league/schemas/league.schema';
+
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { TrendingUp, Plus, Trash2 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+
+interface CreateMarketModalProps {
+  leagueId: string;
+  matchId?: string;
+}
+
+export const CreateMarketModal = ({ leagueId, matchId }: CreateMarketModalProps) => {
+  const [open, setOpen] = useState(false);
+  const [apiError, setApiError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const queryClient = useQueryClient();
+
+  const form = useForm<CreateMarketInput>({
+    resolver: zodResolver(createMarketSchema),
+    defaultValues: {
+      name: '',
+      options: [
+        { name: '', odds: 1.5 },
+        { name: '', odds: 2.5 }
+      ],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "options"
+  });
+
+  const getErrorMessage = (err: unknown): string => {
+    if (isAxiosError<{ error?: string }>(err)) return err.response?.data?.error || err.message;
+    if (err instanceof Error) return err.message;
+    return 'Ocurrió un error inesperado al crear el mercado';
+  };
+
+  const mutation = useMutation({
+    mutationFn: (data: CreateMarketInput) => {
+      if (matchId) {
+        return leagueApi.createMarketForMatch(matchId, data);
+      }
+      return leagueApi.createMarketForLeague(leagueId, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: matchId ? ['match-markets', matchId] : ['league-markets', leagueId] });
+      setSuccessMessage('Mercado creado exitosamente');
+      form.reset();
+      setTimeout(() => {
+        setOpen(false);
+        setSuccessMessage('');
+      }, 2000);
+    },
+    onError: (err) => {
+      setApiError(getErrorMessage(err));
+    }
+  });
+
+  const onSubmit = (data: CreateMarketInput) => {
+    setApiError('');
+    setSuccessMessage('');
+    mutation.mutate(data);
+  };
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      form.reset();
+      setApiError('');
+      setSuccessMessage('');
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:hover:bg-emerald-900/30 dark:border-emerald-500/30 dark:text-emerald-300 transition-colors">
+          <TrendingUp className="w-4 h-4 mr-2" />
+          Crear Mercado {matchId ? 'del Partido' : 'Futuro (Liga)'}
+        </Button>
+      </DialogTrigger>
+      
+      <DialogContent className="sm:max-w-lg bg-white/90 dark:bg-neutral-950/90 backdrop-blur-xl border-neutral-200/50 dark:border-neutral-800/50 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-neutral-900 to-neutral-600 dark:from-white dark:to-neutral-400 bg-clip-text text-transparent">
+            Nuevo Mercado {matchId ? 'del Partido' : 'Futuro'}
+          </DialogTitle>
+          <DialogDescription>
+            {matchId 
+              ? 'Agrega un mercado específico para este partido (ej. Ganador, Over/Under).' 
+              : 'Agrega un mercado a largo plazo para todo el torneo (ej. Campeón, Goleador).'}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="px-1">
+          {apiError && (
+            <div className="mb-4 p-3 bg-red-950/80 backdrop-blur-sm border border-red-800/50 text-red-200 text-sm rounded-lg font-medium shadow-inner text-center">
+              {apiError}
+            </div>
+          )}
+          {successMessage && (
+            <div className="mb-4 p-3 bg-green-950/80 backdrop-blur-sm border border-green-800/50 text-green-200 text-sm rounded-lg font-medium shadow-inner text-center">
+              {successMessage}
+            </div>
+          )}
+
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Nombre del Mercado</label>
+              <Input
+                {...form.register('name')}
+                placeholder={matchId ? "Ej. Ganador del Partido" : "Ej. Alianza Lima sale campeón"}
+                className="bg-neutral-100 dark:bg-neutral-900 border-neutral-300 dark:border-neutral-800"
+              />
+              {form.formState.errors.name && (
+                <span className="text-[11px] font-medium text-red-500 block">{form.formState.errors.name.message}</span>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Opciones y Cuotas</label>
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => append({ name: '', odds: 1.50 })}
+                  className="h-8 text-xs bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-900 dark:hover:bg-neutral-800"
+                >
+                  <Plus className="w-3 h-3 mr-1" /> Agregar Opción
+                </Button>
+              </div>
+
+              {form.formState.errors.options?.root && (
+                <span className="text-[11px] font-medium text-red-500 block">
+                  {form.formState.errors.options.root.message}
+                </span>
+              )}
+
+              <div className="space-y-3">
+                {fields.map((field, index) => (
+                  <div key={field.id} className="flex gap-2 items-start">
+                    <div className="flex-1 space-y-1">
+                      <Input
+                        {...form.register(`options.${index}.name` as const)}
+                        placeholder="Opción (Ej. Local, Sí, Empate)"
+                        className="bg-neutral-100 dark:bg-neutral-900 border-neutral-300 dark:border-neutral-800"
+                      />
+                      {form.formState.errors.options?.[index]?.name && (
+                        <span className="text-[10px] text-red-500">{form.formState.errors.options[index]?.name?.message}</span>
+                      )}
+                    </div>
+                    
+                    <div className="w-24 space-y-1">
+                      <Input
+                        {...form.register(`options.${index}.odds` as const, { valueAsNumber: true })}
+                        type="number"
+                        step="0.01"
+                        placeholder="Cuota"
+                        className="bg-neutral-100 dark:bg-neutral-900 border-neutral-300 dark:border-neutral-800"
+                      />
+                      {form.formState.errors.options?.[index]?.odds && (
+                        <span className="text-[10px] text-red-500">{form.formState.errors.options[index]?.odds?.message}</span>
+                      )}
+                    </div>
+
+                    <Button 
+                      type="button" 
+                      variant="destructive" 
+                      size="icon" 
+                      onClick={() => remove(index)}
+                      className="shrink-0 h-10 w-10"
+                      disabled={fields.length <= 2}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Button 
+              type="submit" 
+              disabled={mutation.isPending || !!successMessage} 
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase py-5 text-sm shadow-lg transition-all duration-300"
+            >
+              {mutation.isPending ? 'Creando...' : 'Crear Mercado'}
+            </Button>
+          </form>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};

@@ -6,7 +6,12 @@ import type {
   JoinLeagueResponse,
   GetUserLeaguesResponse,
   GetLeagueDetailsResponse,
-  UpdateLeagueRequest
+  UpdateLeagueRequest,
+  CreateMatchRequest,
+  MatchResponse,
+  CreateMarketRequest,
+  MarketResponse,
+  GetMatchesResponse
 } from '../types/league.types';
 
 export const leagueApi = {
@@ -36,5 +41,37 @@ export const leagueApi = {
 
   deleteLeague: async (id: string): Promise<void> => {
     await api.delete(`/leagues/${id}`);
+  },
+
+  createMatch: async (leagueId: string, data: CreateMatchRequest): Promise<MatchResponse> => {
+    const response = await api.post<MatchResponse>(`/leagues/${leagueId}/matches`, data);
+    return response.data;
+  },
+
+  createMarketForLeague: async (leagueId: string, data: CreateMarketRequest): Promise<MarketResponse> => {
+    const response = await api.post<MarketResponse>(`/leagues/${leagueId}/markets`, data);
+    return response.data;
+  },
+
+  createMarketForMatch: async (matchId: string, data: CreateMarketRequest): Promise<MarketResponse> => {
+    const response = await api.post<MarketResponse>(`/matches/${matchId}/markets`, data);
+    return response.data;
+  },
+
+  getMatches: async (leagueId: string, page = 1, limit = 20, status?: string): Promise<GetMatchesResponse> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (status) params.append('status', status);
+    const response = await api.get<GetMatchesResponse>(`/leagues/${leagueId}/matches?${params.toString()}`);
+    return response.data;
+  },
+
+  getLeagueMarkets: async (leagueId: string): Promise<MarketResponse[]> => {
+    const response = await api.get<MarketResponse[]>(`/leagues/${leagueId}/markets`);
+    return response.data;
+  },
+
+  getMatchMarkets: async (matchId: string): Promise<MarketResponse[]> => {
+    const response = await api.get<MarketResponse[]>(`/matches/${matchId}/markets`);
+    return response.data;
   }
 };

@@ -61,3 +61,47 @@ export interface UpdateLeagueRequest {
   max_recharges: number;
   hide_standings: boolean;
 }
+
+export interface CreateMatchRequest {
+  title: string;
+  start_time: string;
+}
+
+export interface MatchResponse {
+  id: string;
+  league_id: string;
+  title: string;
+  start_time: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MarketOptionRequest {
+  name: string;
+  odds: number;
+}
+
+export interface CreateMarketRequest {
+  name: string;
+  options: MarketOptionRequest[];
+}
+
+export interface MarketOptionResponse {
+  id: string;
+  market_id: string;
+  name: string;
+  initial_odds: number;
+  current_odds: number;
+}
+
+export interface MarketResponse {
+  id: string;
+  league_id: string;
+  match_id: string | null;
+  name: string;
+  status: string;
+  options: MarketOptionResponse[];
+  created_at: string;
+  updated_at: string;
+}

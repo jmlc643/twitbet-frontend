@@ -6,7 +6,11 @@ import type {
   JoinLeagueResponse,
   GetUserLeaguesResponse,
   GetLeagueDetailsResponse,
-  UpdateLeagueRequest
+  UpdateLeagueRequest,
+  CreateMatchRequest,
+  MatchResponse,
+  CreateMarketRequest,
+  MarketResponse
 } from '../types/league.types';
 
 export const leagueApi = {
@@ -36,5 +40,20 @@ export const leagueApi = {
 
   deleteLeague: async (id: string): Promise<void> => {
     await api.delete(`/leagues/${id}`);
+  },
+
+  createMatch: async (leagueId: string, data: CreateMatchRequest): Promise<MatchResponse> => {
+    const response = await api.post<MatchResponse>(`/leagues/${leagueId}/matches`, data);
+    return response.data;
+  },
+
+  createMarketForLeague: async (leagueId: string, data: CreateMarketRequest): Promise<MarketResponse> => {
+    const response = await api.post<MarketResponse>(`/leagues/${leagueId}/markets`, data);
+    return response.data;
+  },
+
+  createMarketForMatch: async (matchId: string, data: CreateMarketRequest): Promise<MarketResponse> => {
+    const response = await api.post<MarketResponse>(`/matches/${matchId}/markets`, data);
+    return response.data;
   }
 };

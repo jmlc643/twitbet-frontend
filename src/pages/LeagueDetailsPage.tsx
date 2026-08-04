@@ -8,6 +8,9 @@ import { ArrowLeft } from 'lucide-react';
 import { LeagueHeaderSection } from '@/features/league/components/sections/LeagueHeaderSection';
 import { LeagueAdminSection } from '@/features/league/components/sections/LeagueAdminSection';
 import { LeagueRankingSection } from '@/features/league/components/sections/LeagueRankingSection';
+import { LeagueMatchesSection } from '@/features/league/components/sections/LeagueMatchesSection';
+import { LeagueMarketsSection } from '@/features/league/components/sections/LeagueMarketsSection';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const LeagueDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -88,8 +91,32 @@ export const LeagueDetailsPage = () => {
         )}
       </div>
 
-      {/* Ranking Section */}
-      <LeagueRankingSection league={league} currentUserId={user?.id} />
+      {/* Sections via Tabs */}
+      <Tabs defaultValue="ranking" className="w-full">
+        <TabsList className="grid w-full grid-cols-3 mb-8 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 h-12">
+          <TabsTrigger value="ranking" className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-950 font-semibold text-neutral-500 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400">
+            Ranking
+          </TabsTrigger>
+          <TabsTrigger value="matches" className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-950 font-semibold text-neutral-500 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400">
+            Partidos
+          </TabsTrigger>
+          <TabsTrigger value="markets" className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-950 font-semibold text-neutral-500 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400">
+            Mercados Futuros
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="ranking" className="mt-0">
+          <LeagueRankingSection league={league} currentUserId={user?.id} />
+        </TabsContent>
+        
+        <TabsContent value="matches" className="mt-0">
+          <LeagueMatchesSection leagueId={league.league_id} isAdmin={isAdmin} />
+        </TabsContent>
+        
+        <TabsContent value="markets" className="mt-0">
+          <LeagueMarketsSection leagueId={league.league_id} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

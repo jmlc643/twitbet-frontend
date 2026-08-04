@@ -105,3 +105,8 @@ export interface MarketResponse {
   created_at: string;
   updated_at: string;
 }
+
+export interface GetMatchesResponse {
+  matches: MatchResponse[] | null;
+  total: number;
+}

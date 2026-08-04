@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isAxiosError } from 'axios';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { leagueApi } from '@/features/league/api/league.api';
 import { createMatchSchema, type CreateMatchInput } from '@/features/league/schemas/league.schema';
@@ -27,6 +27,7 @@ export const CreateMatchModal = ({ leagueId }: CreateMatchModalProps) => {
   const [open, setOpen] = useState(false);
   const [apiError, setApiError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const queryClient = useQueryClient();
 
   const form = useForm<CreateMatchInput>({
     resolver: zodResolver(createMatchSchema),
@@ -52,7 +53,8 @@ export const CreateMatchModal = ({ leagueId }: CreateMatchModalProps) => {
       });
     },
     onSuccess: () => {
-      setSuccessMessage('Partido creado exitosamente (Aún no se puede visualizar)');
+      queryClient.invalidateQueries({ queryKey: ['league-matches', leagueId] });
+      setSuccessMessage('Partido creado exitosamente');
       form.reset();
       setTimeout(() => {
         setOpen(false);

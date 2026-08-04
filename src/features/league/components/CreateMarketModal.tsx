@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isAxiosError } from 'axios';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { leagueApi } from '@/features/league/api/league.api';
 import { createMarketSchema, type CreateMarketInput } from '@/features/league/schemas/league.schema';
@@ -28,6 +28,7 @@ export const CreateMarketModal = ({ leagueId, matchId }: CreateMarketModalProps)
   const [open, setOpen] = useState(false);
   const [apiError, setApiError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const queryClient = useQueryClient();
 
   const form = useForm<CreateMarketInput>({
     resolver: zodResolver(createMarketSchema),
@@ -59,7 +60,8 @@ export const CreateMarketModal = ({ leagueId, matchId }: CreateMarketModalProps)
       return leagueApi.createMarketForLeague(leagueId, data);
     },
     onSuccess: () => {
-      setSuccessMessage('Mercado creado exitosamente (Aún no se puede visualizar)');
+      queryClient.invalidateQueries({ queryKey: matchId ? ['match-markets', matchId] : ['league-markets', leagueId] });
+      setSuccessMessage('Mercado creado exitosamente');
       form.reset();
       setTimeout(() => {
         setOpen(false);

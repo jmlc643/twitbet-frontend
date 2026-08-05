@@ -1,29 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { leagueApi } from '@/features/league/api/league.api';
-import type { LeagueSummary } from '../types/league.types';
 import { LeagueCard } from './LeagueCard';
 import { Trophy } from 'lucide-react';
 
 export const LeagueList = () => {
-  const [leagues, setLeagues] = useState<LeagueSummary[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const fetchLeagues = async () => {
-      try {
-        const response = await leagueApi.getUserLeagues();
-        setLeagues(response.leagues);
-      } catch (err: unknown) {
-        console.error(err);
-        setError('Ocurrió un error al cargar tus ligas');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLeagues();
-  }, []);
+  const { data: leagues, isLoading: loading, error } = useQuery({
+    queryKey: ['leagues'],
+    queryFn: async () => {
+      const response = await leagueApi.getUserLeagues();
+      return response.leagues;
+    }
+  });
 
   if (loading) {
     return (
@@ -38,7 +25,7 @@ export const LeagueList = () => {
   if (error) {
     return (
       <div className="mt-8 p-6 text-center rounded-2xl bg-red-50/50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400">
-        {error}
+        Ocurrió un error al cargar tus ligas
       </div>
     );
   }

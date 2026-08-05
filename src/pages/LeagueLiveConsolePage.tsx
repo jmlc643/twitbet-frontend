@@ -10,26 +10,28 @@ import { MatchMarketsContainer } from '@/features/league/components/MatchMarkets
 
 
 export const LeagueLiveConsolePage = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
   const { data: league, isLoading: loadingLeague } = useQuery({
-    queryKey: ['league', id],
-    queryFn: () => leagueApi.getLeagueDetails(id!),
-    enabled: !!id,
+    queryKey: ['league', slug],
+    queryFn: () => leagueApi.getLeagueDetails(slug!),
+    enabled: !!slug,
   });
 
+  const leagueId = league?.league_id;
+
   const { data: matchesData } = useQuery({
-    queryKey: ['league-matches', id],
-    queryFn: () => leagueApi.getMatches(id!, 1, 100),
-    enabled: !!id,
+    queryKey: ['league-matches', leagueId],
+    queryFn: () => leagueApi.getMatches(leagueId!, 1, 100),
+    enabled: !!leagueId,
   });
 
   const { data: leagueMarkets = [] } = useQuery({
-    queryKey: ['league-markets', id],
-    queryFn: () => leagueApi.getLeagueMarkets(id!),
-    enabled: !!id,
+    queryKey: ['league-markets', leagueId],
+    queryFn: () => leagueApi.getLeagueMarkets(leagueId!),
+    enabled: !!leagueId,
   });
 
   if (loadingLeague) {
@@ -40,8 +42,8 @@ export const LeagueLiveConsolePage = () => {
     return <div className="text-center p-8">Liga no encontrada.</div>;
   }
 
-  if (user?.id !== league.admin_id) {
-    navigate(`/leagues/${id}`);
+  if (user?.id !== league.owner_id) {
+    navigate(`/leagues/${slug}`);
     return null;
   }
 
@@ -51,7 +53,7 @@ export const LeagueLiveConsolePage = () => {
     <div className="container mx-auto p-4 max-w-5xl animate-in fade-in duration-500">
       <Button 
         variant="ghost" 
-        onClick={() => navigate(`/leagues/${id}`)} 
+        onClick={() => navigate(`/leagues/${slug}`)} 
         className="mb-4 text-neutral-500 hover:text-neutral-900 dark:text-zinc-400 dark:hover:text-white"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />

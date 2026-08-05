@@ -37,7 +37,7 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
             <div className="flex items-center space-x-4 text-xs font-medium text-neutral-500 dark:text-neutral-400">
               <span className="flex items-center">
                 <Calendar className="w-3.5 h-3.5 mr-1" />
-                {date.toLocaleDateString()}
+                {date.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' })}
               </span>
               <span className="flex items-center">
                 <Clock className="w-3.5 h-3.5 mr-1" />
@@ -113,7 +113,7 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
           <Button 
             variant="ghost" 
             className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:text-indigo-300 dark:hover:bg-indigo-950/30 text-sm font-semibold group-hover:translate-x-1 transition-transform"
-            onClick={() => navigate(`/matches/${match.id}`)}
+            onClick={() => navigate(`/matches/${match.slug}`)}
           >
             Ver todos los mercados (+{Math.max(0, markets.length - 3)})
             <ChevronRight className="w-4 h-4 ml-1" />

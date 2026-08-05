@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router-dom';
 
 interface CreateLeagueSuccessViewProps {
   inviteCode: string;
+  slug: string;
   copied: boolean;
   onCopy: () => void;
 }
 
-export const CreateLeagueSuccessView = ({ inviteCode, copied, onCopy }: CreateLeagueSuccessViewProps) => {
+export const CreateLeagueSuccessView = ({ inviteCode, slug, copied, onCopy }: CreateLeagueSuccessViewProps) => {
   const navigate = useNavigate();
 
   return (
@@ -46,10 +47,10 @@ export const CreateLeagueSuccessView = ({ inviteCode, copied, onCopy }: CreateLe
         </Button>
         <Button
           variant="outline"
-          onClick={() => navigate('/profile')}
+          onClick={() => navigate(`/leagues/${slug}`)}
           className="w-full font-bold uppercase py-6 text-sm border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
         >
-          Ir a mi perfil
+          Ir a la liga
         </Button>
       </CardContent>
     </Card>

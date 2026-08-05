@@ -13,7 +13,8 @@ import type {
   MarketResponse,
   GetMatchesResponse,
   UpdateMarketStatusRequest,
-  UpdateMarketOddsRequest
+  UpdateMarketOddsRequest,
+  GetMatchDetailsResponse
 } from '../types/league.types';
 
 export const leagueApi = {
@@ -32,8 +33,13 @@ export const leagueApi = {
     return response.data;
   },
 
-  getLeagueDetails: async (id: string): Promise<GetLeagueDetailsResponse> => {
-    const response = await api.get<GetLeagueDetailsResponse>(`/leagues/${id}`);
+  getLeagueDetails: async (slug: string): Promise<GetLeagueDetailsResponse> => {
+    const response = await api.get<GetLeagueDetailsResponse>(`/leagues/${slug}`);
+    return response.data;
+  },
+
+  getMatchDetails: async (slug: string): Promise<GetMatchDetailsResponse> => {
+    const response = await api.get<GetMatchDetailsResponse>(`/matches/${slug}`);
     return response.data;
   },
 
@@ -83,5 +89,13 @@ export const leagueApi = {
 
   updateMarketOdds: async (marketId: string, data: UpdateMarketOddsRequest): Promise<void> => {
     await api.patch(`/markets/${marketId}/odds`, data);
+  },
+
+  assignAdmin: async (leagueId: string, participantId: string): Promise<void> => {
+    await api.post(`/leagues/${leagueId}/admins`, { participant_id: participantId });
+  },
+
+  removeAdmin: async (leagueId: string, participantId: string): Promise<void> => {
+    await api.delete(`/leagues/${leagueId}/admins/${participantId}`);
   }
 };

@@ -13,19 +13,19 @@ import { LeagueMarketsSection } from '@/features/league/components/sections/Leag
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const LeagueDetailsPage = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
 
   const { data: league, isLoading, isError } = useQuery({
-    queryKey: ['league', id],
-    queryFn: () => leagueApi.getLeagueDetails(id!),
-    enabled: !!id,
+    queryKey: ['league', slug],
+    queryFn: () => leagueApi.getLeagueDetails(slug!),
+    enabled: !!slug,
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () => leagueApi.deleteLeague(id!),
+    mutationFn: () => leagueApi.deleteLeague(league!.league_id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userLeagues'] });
       navigate('/profile');
@@ -60,7 +60,9 @@ export const LeagueDetailsPage = () => {
     );
   }
 
-  const isAdmin = user?.id === league.admin_id;
+  const currentParticipant = league.participants?.find(p => p.user_id === user?.id);
+  const isOwner = user?.id === league.owner_id;
+  const isAdmin = isOwner || currentParticipant?.role === 'ADMIN';
 
   const handleDeleteLeague = () => {
     deleteMutation.mutate();
@@ -79,7 +81,7 @@ export const LeagueDetailsPage = () => {
 
       {/* Header Info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <LeagueHeaderSection league={league} />
+        <LeagueHeaderSection league={league} isAdmin={isAdmin} />
 
         {/* Admin Panel */}
         {isAdmin && (

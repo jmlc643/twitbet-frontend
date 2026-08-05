@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Settings, Trash2, AlertTriangle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Settings, Trash2, AlertTriangle, Activity } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EditLeagueModal } from '@/features/league/components/EditLeagueModal';
@@ -23,6 +24,7 @@ interface LeagueAdminSectionProps {
 
 export const LeagueAdminSection = ({ league, onDelete, isDeleting }: LeagueAdminSectionProps) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleDelete = () => {
     onDelete();
@@ -39,6 +41,15 @@ export const LeagueAdminSection = ({ league, onDelete, isDeleting }: LeagueAdmin
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-col gap-3">
+          <div className="w-full">
+            <Button 
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md border-0"
+              onClick={() => navigate(`/leagues/${league.league_id}/live`)}
+            >
+              <Activity className="w-4 h-4 mr-2" />
+              Consola En Vivo
+            </Button>
+          </div>
           <div className="w-full">
             <EditLeagueModal league={league} />
           </div>

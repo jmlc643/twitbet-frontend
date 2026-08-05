@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, Trophy, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, Trophy, ChevronRight, Lock } from 'lucide-react';
 import { leagueApi } from '@/features/league/api/league.api';
 import type { MatchResponse } from '@/features/league/types/league.types';
 import { mapMatchStatus, getStatusColor } from '@/features/league/utils/statusMapper';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AnimatedOdds } from '@/components/ui/AnimatedOdds';
 import { CreateMarketModal } from './CreateMarketModal';
 
 interface MatchCardProps {
@@ -60,23 +61,43 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
           <div className="space-y-4">
             {previewMarkets.map((market) => (
               <div key={market.id} className="space-y-2">
-                <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-300 uppercase tracking-wider">
-                  {market.name}
-                </p>
+                <div className="flex items-center space-x-2">
+                  <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-300 uppercase tracking-wider">
+                    {market.name}
+                  </p>
+                  {market.status === 'SUSPENDED' && (
+                    <Lock className="w-3.5 h-3.5 text-red-500" />
+                  )}
+                </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {market.options.map((opt) => (
-                    <Button 
-                      key={opt.id} 
-                      variant="outline" 
-                      className="flex flex-col items-center justify-center py-2 h-auto bg-neutral-50 hover:bg-indigo-50 border-neutral-200 hover:border-indigo-200 dark:bg-neutral-950/50 dark:hover:bg-indigo-950/30 dark:border-neutral-800 dark:hover:border-indigo-800 transition-colors"
-                    >
-                      <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-medium mb-1 truncate w-full text-center">
-                        {opt.name}
-                      </span>
-                      <span className="text-sm font-bold text-neutral-900 dark:text-white">
-                        {opt.current_odds.toFixed(2)}
-                      </span>
-                    </Button>
+                    <AnimatedOdds key={opt.id} odds={opt.current_odds}>
+                      {(flash, currentOdds) => {
+                        const flashClass = flash === 'up' 
+                          ? 'bg-emerald-500 border-emerald-500 text-white dark:bg-emerald-600 dark:border-emerald-600' 
+                          : flash === 'down'
+                          ? 'bg-red-500 border-red-500 text-white dark:bg-red-600 dark:border-red-600'
+                          : 'bg-neutral-50 border-neutral-200 dark:bg-neutral-950/50 dark:border-neutral-800';
+                          
+                        const textClass = flash ? 'text-white' : 'text-neutral-900 dark:text-white';
+                        const labelClass = flash ? 'text-white/80' : 'text-neutral-500 dark:text-neutral-400';
+
+                        return (
+                          <Button 
+                            variant="outline" 
+                            disabled={market.status === 'SUSPENDED'}
+                            className={`flex flex-col items-center justify-center py-2 h-auto hover:bg-indigo-50 hover:border-indigo-200 dark:hover:bg-indigo-950/30 dark:hover:border-indigo-800 transition-colors duration-500 disabled:opacity-50 disabled:cursor-not-allowed ${flashClass}`}
+                          >
+                            <span className={`text-[10px] font-medium mb-1 truncate w-full text-center ${labelClass}`}>
+                              {opt.name}
+                            </span>
+                            <span className={`text-sm font-bold ${textClass}`}>
+                              {currentOdds.toFixed(2)}
+                            </span>
+                          </Button>
+                        );
+                      }}
+                    </AnimatedOdds>
                   ))}
                 </div>
               </div>

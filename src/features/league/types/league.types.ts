@@ -110,3 +110,31 @@ export interface GetMatchesResponse {
   matches: MatchResponse[] | null;
   total: number;
 }
+
+export interface UpdateMarketStatusRequest {
+  status: 'ACTIVE' | 'SUSPENDED';
+}
+
+export interface UpdateMarketOddsRequest {
+  options_odds: Record<string, number>;
+}
+
+export interface WsMarketStatusChanged {
+  type: 'MARKET_STATUS_CHANGED';
+  market_id: string;
+  status: 'ACTIVE' | 'SUSPENDED';
+}
+
+export interface WsOddsUpdated {
+  type: 'ODDS_UPDATED';
+  market_id: string;
+  options: {
+    id: string;
+    market_id: string;
+    name: string;
+    initial_odds: number;
+    current_odds: number;
+  }[];
+}
+
+export type WebSocketEvent = WsMarketStatusChanged | WsOddsUpdated;

@@ -11,7 +11,9 @@ import type {
   MatchResponse,
   CreateMarketRequest,
   MarketResponse,
-  GetMatchesResponse
+  GetMatchesResponse,
+  UpdateMarketStatusRequest,
+  UpdateMarketOddsRequest
 } from '../types/league.types';
 
 export const leagueApi = {
@@ -73,5 +75,13 @@ export const leagueApi = {
   getMatchMarkets: async (matchId: string): Promise<MarketResponse[]> => {
     const response = await api.get<MarketResponse[]>(`/matches/${matchId}/markets`);
     return response.data;
+  },
+
+  updateMarketStatus: async (marketId: string, data: UpdateMarketStatusRequest): Promise<void> => {
+    await api.patch(`/markets/${marketId}/status`, data);
+  },
+
+  updateMarketOdds: async (marketId: string, data: UpdateMarketOddsRequest): Promise<void> => {
+    await api.patch(`/markets/${marketId}/odds`, data);
   }
 };

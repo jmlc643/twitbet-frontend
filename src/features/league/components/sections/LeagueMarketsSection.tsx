@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { leagueApi } from '@/features/league/api/league.api';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { AnimatedOdds } from '@/components/ui/AnimatedOdds';
 
 interface LeagueMarketsSectionProps {
   leagueId: string;
@@ -55,23 +56,41 @@ export const LeagueMarketsSection = ({ leagueId }: LeagueMarketsSectionProps) =>
               <h3 className="font-bold text-base text-neutral-900 dark:text-neutral-100 flex items-center">
                 <TrendingUp className="w-4 h-4 mr-2 text-emerald-500" />
                 {market.name}
+                {market.status === 'SUSPENDED' && (
+                  <Lock className="w-4 h-4 ml-2 text-red-500" />
+                )}
               </h3>
             </CardHeader>
             <CardContent className="p-4">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {market.options.map((opt) => (
-                  <Button 
-                    key={opt.id} 
-                    variant="outline" 
-                    className="flex flex-col items-center justify-center py-3 h-auto bg-neutral-50 hover:bg-emerald-50 border-neutral-200 hover:border-emerald-300 dark:bg-neutral-950/50 dark:hover:bg-emerald-950/30 dark:border-neutral-800 dark:hover:border-emerald-800 transition-colors"
-                  >
-                    <span className="text-xs text-neutral-500 dark:text-neutral-400 font-medium mb-1 truncate w-full text-center">
-                      {opt.name}
-                    </span>
-                    <span className="text-base font-bold text-emerald-700 dark:text-emerald-400">
-                      {opt.current_odds.toFixed(2)}
-                    </span>
-                  </Button>
+                  <AnimatedOdds key={opt.id} odds={opt.current_odds}>
+                    {(flash, currentOdds) => {
+                      const flashClass = flash === 'up' 
+                        ? 'bg-emerald-500 border-emerald-500 text-white dark:bg-emerald-600 dark:border-emerald-600' 
+                        : flash === 'down'
+                        ? 'bg-red-500 border-red-500 text-white dark:bg-red-600 dark:border-red-600'
+                        : 'bg-neutral-50 border-neutral-200 dark:bg-neutral-950/50 dark:border-neutral-800';
+                        
+                      const textClass = flash ? 'text-white' : 'text-emerald-700 dark:text-emerald-400';
+                      const labelClass = flash ? 'text-white/80' : 'text-neutral-500 dark:text-neutral-400';
+
+                      return (
+                        <Button 
+                          variant="outline" 
+                          disabled={market.status === 'SUSPENDED'}
+                          className={`flex flex-col items-center justify-center py-3 h-auto hover:bg-emerald-50 hover:border-emerald-300 dark:hover:bg-emerald-950/30 dark:hover:border-emerald-800 transition-colors duration-500 disabled:opacity-50 disabled:cursor-not-allowed ${flashClass}`}
+                        >
+                          <span className={`text-xs font-medium mb-1 truncate w-full text-center ${labelClass}`}>
+                            {opt.name}
+                          </span>
+                          <span className={`text-base font-bold ${textClass}`}>
+                            {currentOdds.toFixed(2)}
+                          </span>
+                        </Button>
+                      );
+                    }}
+                  </AnimatedOdds>
                 ))}
               </div>
             </CardContent>

@@ -24,7 +24,6 @@ export const useLiveMarkets = () => {
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log("Conectado al servidor de apuestas en vivo");
       };
 
       ws.onmessage = (event) => {
@@ -63,13 +62,12 @@ export const useLiveMarkets = () => {
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['match-markets'] }, updateMarketOdds);
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['league-markets'] }, updateMarketOdds);
           }
-        } catch (error) {
-          console.error("Error al procesar mensaje WS", error);
+        } catch {
+          // ignorar errores
         }
       };
 
       ws.onclose = () => {
-        console.log("Desconectado del servidor WS. Intentando reconectar en 3s...");
         setTimeout(() => {
           if (isAuthenticated) {
             connectWs();
@@ -77,8 +75,7 @@ export const useLiveMarkets = () => {
         }, 3000);
       };
 
-      ws.onerror = (error) => {
-        console.error("Error en conexión WS", error);
+      ws.onerror = () => {
         ws.close();
       };
     };

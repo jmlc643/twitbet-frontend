@@ -33,9 +33,6 @@ export const ProfileCard = () => {
               <span className="text-[11px] bg-red-600/10 text-red-600 dark:text-red-500 border border-red-600/30 px-2.5 py-0.5 rounded-full font-semibold">
                 Apostador Frecuente
               </span>
-              <span className="text-[11px] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700 px-2.5 py-0.5 rounded-full font-mono">
-                ID: {user?.id ? `${user.id.slice(0, 8)}...` : 'N/A'}
-              </span>
             </div>
           </div>
         </div>

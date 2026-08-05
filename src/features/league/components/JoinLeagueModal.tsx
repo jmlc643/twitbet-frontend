@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isAxiosError } from 'axios';
+import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 import { leagueApi } from '@/features/league/api/league.api';
 import { joinLeagueSchema, type JoinLeagueInput } from '@/features/league/schemas/league.schema';
@@ -22,6 +24,8 @@ export const JoinLeagueModal = () => {
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const form = useForm<JoinLeagueInput>({
     resolver: zodResolver(joinLeagueSchema),
@@ -41,11 +45,11 @@ export const JoinLeagueModal = () => {
     setApiError('');
     try {
       const res = await leagueApi.joinLeague(data);
+      queryClient.invalidateQueries({ queryKey: ['leagues'] });
       setSuccessMessage(`¡Bienvenido a ${res.league_name}!`);
       setTimeout(() => {
         setOpen(false);
-        // Redirigir al dashboard de la liga en el futuro
-        // navigate(`/leagues/${res.league_id}`);
+        navigate(`/leagues/${res.slug}`);
       }, 2000);
     } catch (err: unknown) {
       setApiError(getErrorMessage(err));

@@ -11,7 +11,7 @@ export const LeagueCard = ({ league }: LeagueCardProps) => {
 
   return (
     <Link 
-      to={`/leagues/${league.league_id}`}
+      to={`/leagues/${league.slug}`}
       className="block relative group overflow-hidden rounded-[2rem] bg-gradient-to-br from-white to-neutral-50 dark:from-[#1C1C1E] dark:to-[#121212] border border-neutral-200 dark:border-white/[0.05] shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-neutral-900/[0.02] dark:from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />

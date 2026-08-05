@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isAxiosError } from 'axios';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { leagueApi } from '@/features/league/api/league.api';
 import { createLeagueSchema, type CreateLeagueInput } from '@/features/league/schemas/league.schema';
@@ -14,8 +15,9 @@ import { CreateLeagueSuccessView } from './sections/CreateLeagueSuccessView';
 export const CreateLeagueForm = () => {
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
-  const [successData, setSuccessData] = useState<{ id: string; invite_code: string } | null>(null);
+  const [successData, setSuccessData] = useState<{ id: string; slug: string; invite_code: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const queryClient = useQueryClient();
 
   const form = useForm<CreateLeagueInput>({
     resolver: zodResolver(createLeagueSchema),
@@ -38,6 +40,7 @@ export const CreateLeagueForm = () => {
     setApiError('');
     try {
       const res = await leagueApi.createLeague(data);
+      queryClient.invalidateQueries({ queryKey: ['leagues'] });
       setSuccessData(res);
     } catch (err: unknown) {
       setApiError(getErrorMessage(err));
@@ -58,6 +61,7 @@ export const CreateLeagueForm = () => {
     return (
       <CreateLeagueSuccessView 
         inviteCode={successData.invite_code}
+        slug={successData.slug}
         copied={copied}
         onCopy={copyToClipboard}
       />

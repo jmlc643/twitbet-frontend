@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { EditLeagueModal } from '@/features/league/components/EditLeagueModal';
 import { CreateMatchModal } from '@/features/league/components/CreateMatchModal';
 import { CreateMarketModal } from '@/features/league/components/CreateMarketModal';
+import { ManageAdminsModal } from '@/features/league/components/ManageAdminsModal';
+import { useAuthStore } from '@/store/useAuthStore';
 import {
   Dialog,
   DialogContent,
@@ -25,6 +27,8 @@ interface LeagueAdminSectionProps {
 export const LeagueAdminSection = ({ league, onDelete, isDeleting }: LeagueAdminSectionProps) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const isOwner = user?.id === league.owner_id;
 
   const handleDelete = () => {
     onDelete();
@@ -44,7 +48,7 @@ export const LeagueAdminSection = ({ league, onDelete, isDeleting }: LeagueAdmin
           <div className="w-full">
             <Button 
               className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md border-0"
-              onClick={() => navigate(`/leagues/${league.league_id}/live`)}
+              onClick={() => navigate(`/leagues/${league.slug}/live`)}
             >
               <Activity className="w-4 h-4 mr-2" />
               Consola En Vivo
@@ -59,6 +63,11 @@ export const LeagueAdminSection = ({ league, onDelete, isDeleting }: LeagueAdmin
           <div className="w-full">
             <CreateMarketModal leagueId={league.league_id} />
           </div>
+          {isOwner && (
+            <div className="w-full">
+              <ManageAdminsModal league={league} />
+            </div>
+          )}
           <div className="w-full">
             <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
               <DialogTrigger asChild>

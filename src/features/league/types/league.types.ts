@@ -7,6 +7,7 @@ export interface CreateLeagueRequest {
 
 export interface CreateLeagueResponse {
   id: string;
+  slug: string;
   invite_code: string;
 }
 
@@ -17,6 +18,7 @@ export interface JoinLeagueRequest {
 export interface JoinLeagueResponse {
   league_id: string;
   league_name: string;
+  slug: string;
   balance: number;
 }
 
@@ -24,6 +26,7 @@ export type LeagueRole = 'ADMIN' | 'MIEMBRO';
 
 export interface LeagueSummary {
   league_id: string;
+  slug: string;
   name: string;
   role: LeagueRole;
   participant_count: number;
@@ -41,12 +44,14 @@ export interface Participant {
   balance: number;
   position: number;
   profile_picture?: string;
+  role: 'OWNER' | 'ADMIN' | 'MEMBER';
 }
 
 export interface GetLeagueDetailsResponse {
   league_id: string;
+  slug: string;
   name: string;
-  admin_id: string;
+  owner_id: string;
   initial_balance: number;
   max_recharges: number;
   is_ranking_visible: boolean;
@@ -70,11 +75,16 @@ export interface CreateMatchRequest {
 export interface MatchResponse {
   id: string;
   league_id: string;
+  slug: string;
   title: string;
   start_time: string;
   status: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface GetMatchDetailsResponse extends MatchResponse {
+  markets: MarketResponse[];
 }
 
 export interface MarketOptionRequest {

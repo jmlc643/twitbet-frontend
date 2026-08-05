@@ -74,6 +74,16 @@ export const LeagueRankingSection = ({ league, currentUserId }: LeagueRankingSec
                         <span className="font-medium text-neutral-800 dark:text-zinc-200 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
                           {participant.username}
                         </span>
+                        {participant.role === 'OWNER' && (
+                          <span className="px-1.5 py-0.5 text-[9px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded-sm uppercase tracking-wider">
+                            Dueño
+                          </span>
+                        )}
+                        {participant.role === 'ADMIN' && (
+                          <span className="px-1.5 py-0.5 text-[9px] font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-400 rounded-sm uppercase tracking-wider">
+                            Admin
+                          </span>
+                        )}
                         {participant.user_id === currentUserId && (
                           <span className="px-2 py-0.5 text-[10px] font-medium bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 rounded-full border border-indigo-200 dark:border-indigo-500/30">
                             Tú

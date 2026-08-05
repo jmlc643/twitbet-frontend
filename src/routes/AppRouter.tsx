@@ -7,6 +7,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 import { CreateLeaguePage } from '@/pages/CreateLeaguePage';
 import { LeagueDetailsPage } from '@/pages/LeagueDetailsPage';
 import { LeagueLiveConsolePage } from '@/pages/LeagueLiveConsolePage';
+import { MatchDetailsPage } from '@/pages/MatchDetailsPage';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export const AppRouter = () => {
@@ -25,8 +26,9 @@ export const AppRouter = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/leagues/create" element={<CreateLeaguePage />} />
-        <Route path="/leagues/:id" element={<LeagueDetailsPage />} />
-        <Route path="/leagues/:id/live" element={<LeagueLiveConsolePage />} />
+        <Route path="/leagues/:slug" element={<LeagueDetailsPage />} />
+        <Route path="/leagues/:slug/live" element={<LeagueLiveConsolePage />} />
+        <Route path="/matches/:slug" element={<MatchDetailsPage />} />
       </Route>
 
       {/* Fallback 404 */}

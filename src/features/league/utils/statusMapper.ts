@@ -5,7 +5,7 @@ export const mapMatchStatus = (status: string): string => {
     'IN_PROGRESS': 'En Progreso',
     'FINISHED': 'Finalizado',
     'COMPLETED': 'Completado',
-    'CANCELLED': 'Cancelado',
+    'VOIDED': 'Anulado',
     'DELAYED': 'Retrasado',
   };
   return map[status.toUpperCase()] || status;

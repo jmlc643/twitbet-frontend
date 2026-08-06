@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
-import type { MarketResponse, WebSocketEvent } from '@/features/league/types/league.types';
+import confetti from 'canvas-confetti';
+import { toast } from 'sonner';
+import type { MarketResponse, WebSocketEvent, PaginatedBetResponse } from '@/features/league/types/league.types';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export const useLiveMarkets = () => {
@@ -61,6 +63,67 @@ export const useLiveMarkets = () => {
 
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['match-markets'] }, updateMarketOdds);
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['league-markets'] }, updateMarketOdds);
+          }
+          
+          if (data.type === 'MARKET_STATUS_CHANGED' && (data.status === 'RESOLVED' || data.status === 'VOIDED')) {
+             queryClient.invalidateQueries({ queryKey: ['user-leagues'] });
+          }
+
+          if (data.type === 'MARKET_RESOLVED') {
+            const allBetsQueries = queryClient.getQueriesData<PaginatedBetResponse>({ queryKey: ['participantBets'] });
+            
+            let wonCount = 0;
+            let lostCount = 0;
+            let totalWonAmount = 0;
+            
+            for (const [, cachedData] of allBetsQueries) {
+              if (!cachedData || !cachedData.data) continue;
+              
+              for (const bet of cachedData.data) {
+                if (bet.market_id === data.market_id && bet.status === 'ACCEPTED') {
+                  if (bet.option_id === data.winning_option_id) {
+                    wonCount++;
+                    totalWonAmount += bet.potential_win;
+                  } else {
+                    lostCount++;
+                  }
+                }
+              }
+            }
+
+            if (wonCount > 0 || lostCount > 0) {
+              if (wonCount > 0 && lostCount === 0) {
+                toast.success(`¡Felicidades! Ganaste ${wonCount === 1 ? 'tu apuesta' : 'tus ' + wonCount + ' apuestas'} (+$${totalWonAmount.toFixed(2)}).`);
+                confetti({
+                  particleCount: 150,
+                  spread: 70,
+                  origin: { y: 0.6 },
+                  colors: ['#22c55e', '#3b82f6', '#f59e0b', '#eab308']
+                });
+              } else if (wonCount === 0 && lostCount > 0) {
+                toast.error(`Perdiste ${lostCount === 1 ? 'tu apuesta' : 'tus ' + lostCount + ' apuestas'} en un mercado resuelto.`);
+              } else {
+                toast.success(`Mercado resuelto: Ganaste ${wonCount} apuesta${wonCount > 1 ? 's' : ''} (+$${totalWonAmount.toFixed(2)}) y perdiste ${lostCount}.`);
+                confetti({
+                  particleCount: 150,
+                  spread: 70,
+                  origin: { y: 0.6 },
+                  colors: ['#22c55e', '#3b82f6', '#f59e0b', '#eab308']
+                });
+              }
+              
+              queryClient.invalidateQueries({ queryKey: ['participantBets'] });
+              queryClient.invalidateQueries({ queryKey: ['participantMe'] });
+            }
+          }
+
+          if (data.type === 'MATCH_STATUS_CHANGED') {
+            queryClient.invalidateQueries({ queryKey: ['league-matches'] });
+            queryClient.invalidateQueries({ queryKey: ['match-details', data.match_id] });
+            
+            if (data.status === 'VOIDED' || data.status === 'FINISHED') {
+              queryClient.invalidateQueries({ queryKey: ['user-leagues'] });
+            }
           }
         } catch {
           // ignorar errores

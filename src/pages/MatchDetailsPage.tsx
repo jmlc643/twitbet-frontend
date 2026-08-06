@@ -6,10 +6,29 @@ import { leagueApi } from '@/features/league/api/league.api';
 import { mapMatchStatus, getStatusColor } from '@/features/league/utils/statusMapper';
 import { Button } from '@/components/ui/button';
 import { AnimatedOdds } from '@/components/ui/AnimatedOdds';
+import { PlaceBetModal } from '@/features/league/components/PlaceBetModal';
+import { useState } from 'react';
 
 export const MatchDetailsPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const [betModal, setBetModal] = useState<{
+    isOpen: boolean;
+    leagueId: string;
+    marketId: string;
+    optionId: string;
+    optionName: string;
+    marketName: string;
+    currentOdds: number;
+  }>({
+    isOpen: false,
+    leagueId: '',
+    marketId: '',
+    optionId: '',
+    optionName: '',
+    marketName: '',
+    currentOdds: 0,
+  });
 
   const { data: match, isLoading, isError } = useQuery({
     queryKey: ['match-details', slug],
@@ -101,28 +120,48 @@ export const MatchDetailsPage = () => {
                         const labelClass = flash ? 'text-white/80' : 'text-neutral-500 dark:text-neutral-400';
 
                         return (
-                          <div className={`flex flex-col items-center justify-center py-3 px-2 border rounded-xl transition-colors duration-500 ${flashClass} ${market.status === 'SUSPENDED' ? 'opacity-50' : ''}`}>
-                            <span className={`text-[11px] font-semibold mb-1 text-center truncate w-full uppercase tracking-wider ${labelClass}`}>
-                              {opt.name}
-                            </span>
-                            <span className="text-lg font-black">
-                              {currentOdds.toFixed(2)}
-                            </span>
-                          </div>
-                        );
-                      }}
-                    </AnimatedOdds>
-                  ))}
-                </div>
+                              <div 
+                                className={`flex flex-col items-center justify-center py-3 px-2 border rounded-xl transition-colors duration-500 ${flashClass} ${market.status === 'SUSPENDED' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:shadow-md'}`}
+                                onClick={() => {
+                                  if (market.status !== 'SUSPENDED') {
+                                    setBetModal({
+                                      isOpen: true,
+                                      leagueId: match.league_id,
+                                      marketId: market.id,
+                                      optionId: opt.id,
+                                      optionName: opt.name,
+                                      marketName: market.name,
+                                      currentOdds: currentOdds
+                                    });
+                                  }
+                                }}
+                              >
+                                <span className={`text-[11px] font-semibold mb-1 text-center truncate w-full uppercase tracking-wider ${labelClass}`}>
+                                  {opt.name}
+                                </span>
+                                <span className="text-lg font-black">
+                                  {currentOdds.toFixed(2)}
+                                </span>
+                              </div>
+                            );
+                          }}
+                        </AnimatedOdds>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <div className="p-12 text-center border border-dashed border-neutral-300 dark:border-neutral-800 rounded-xl bg-neutral-50 dark:bg-neutral-900/20">
+                <p className="text-neutral-500 dark:text-neutral-400 font-medium">No hay mercados disponibles para este partido.</p>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="p-12 text-center border border-dashed border-neutral-300 dark:border-neutral-800 rounded-xl bg-neutral-50 dark:bg-neutral-900/20">
-            <p className="text-neutral-500 dark:text-neutral-400 font-medium">No hay mercados disponibles para este partido.</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
+          
+          <PlaceBetModal
+            {...betModal}
+            onClose={() => setBetModal(prev => ({ ...prev, isOpen: false }))}
+          />
+        </div>
+      );
+    };

@@ -6,6 +6,8 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { Navbar } from '@/components/layout/Navbar';
 import { AppRouter } from '@/routes/AppRouter';
 
+import { Toaster } from 'sonner';
+
 const queryClient = new QueryClient();
 
 export default function App() {
@@ -25,6 +27,7 @@ export default function App() {
           <main className="max-w-7xl mx-auto px-6 py-8">
             <AppRouter />
           </main>
+          <Toaster richColors position="top-right" />
         </div>
       </BrowserRouter>
     </QueryClientProvider>

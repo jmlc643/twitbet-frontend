@@ -156,6 +156,12 @@ export interface WsMatchStatusChanged {
   status: 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'VOIDED';
 }
 
+export interface WsMarketResolved {
+  type: 'MARKET_RESOLVED';
+  market_id: string;
+  winning_option_id: string;
+}
+
 export interface WsOddsUpdated {
   type: 'ODDS_UPDATED';
   market_id: string;
@@ -168,7 +174,7 @@ export interface WsOddsUpdated {
   }[];
 }
 
-export type WebSocketEvent = WsMarketStatusChanged | WsOddsUpdated | WsMatchStatusChanged;
+export type WebSocketEvent = WsMarketStatusChanged | WsOddsUpdated | WsMatchStatusChanged | WsMarketResolved;
 
 export interface ParticipantMeResponse {
   id: string;
@@ -188,7 +194,9 @@ export interface BetDetailResponse {
   status: 'ACCEPTED' | 'WON' | 'LOST' | 'VOIDED';
   placed_at: string;
   match_title: string;
+  market_id: string;
   market_name: string;
+  option_id: string;
   option_name: string;
 }
 

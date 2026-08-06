@@ -17,7 +17,9 @@ import type {
   GetMatchDetailsResponse,
   PlaceBetRequest,
   ResolveMarketRequest,
-  UpdateMatchStatusRequest
+  UpdateMatchStatusRequest,
+  ParticipantMeResponse,
+  PaginatedBetResponse
 } from '../types/league.types';
 
 export const leagueApi = {
@@ -112,5 +114,26 @@ export const leagueApi = {
 
   updateMatchStatus: async (matchId: string, data: UpdateMatchStatusRequest): Promise<void> => {
     await api.patch(`/matches/${matchId}/status`, data);
+  },
+
+  getParticipantMe: async (leagueId: string): Promise<ParticipantMeResponse> => {
+    const response = await api.get<ParticipantMeResponse>(`/leagues/${leagueId}/me`);
+    return response.data;
+  },
+
+  getParticipantBets: async (
+    leagueId: string, 
+    status?: string, 
+    page = 1, 
+    limit = 10,
+    startDate?: string,
+    endDate?: string
+  ): Promise<PaginatedBetResponse> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (status) params.append('status', status);
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    const response = await api.get<PaginatedBetResponse>(`/leagues/${leagueId}/bets?${params.toString()}`);
+    return response.data;
   }
 };

@@ -10,6 +10,7 @@ import { LeagueAdminSection } from '@/features/league/components/sections/League
 import { LeagueRankingSection } from '@/features/league/components/sections/LeagueRankingSection';
 import { LeagueMatchesSection } from '@/features/league/components/sections/LeagueMatchesSection';
 import { LeagueMarketsSection } from '@/features/league/components/sections/LeagueMarketsSection';
+import { LeagueBetsSection } from '@/features/league/components/sections/LeagueBetsSection';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const LeagueDetailsPage = () => {
@@ -95,7 +96,7 @@ export const LeagueDetailsPage = () => {
 
       {/* Sections via Tabs */}
       <Tabs defaultValue="ranking" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-8 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 h-12">
+        <TabsList className="grid w-full grid-cols-4 mb-8 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 h-12">
           <TabsTrigger value="ranking" className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-950 font-semibold text-neutral-500 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400">
             Ranking
           </TabsTrigger>
@@ -104,6 +105,9 @@ export const LeagueDetailsPage = () => {
           </TabsTrigger>
           <TabsTrigger value="markets" className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-950 font-semibold text-neutral-500 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400">
             Mercados Futuros
+          </TabsTrigger>
+          <TabsTrigger value="bets" className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-950 font-semibold text-neutral-500 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400">
+            Mis Apuestas
           </TabsTrigger>
         </TabsList>
         
@@ -117,6 +121,10 @@ export const LeagueDetailsPage = () => {
         
         <TabsContent value="markets" className="mt-0">
           <LeagueMarketsSection leagueId={league.league_id} />
+        </TabsContent>
+
+        <TabsContent value="bets" className="mt-0">
+          <LeagueBetsSection leagueId={league.league_id} />
         </TabsContent>
       </Tabs>
     </div>

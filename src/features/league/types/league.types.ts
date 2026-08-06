@@ -169,3 +169,34 @@ export interface WsOddsUpdated {
 }
 
 export type WebSocketEvent = WsMarketStatusChanged | WsOddsUpdated | WsMatchStatusChanged;
+
+export interface ParticipantMeResponse {
+  id: string;
+  league_id: string;
+  user_id: string;
+  is_admin: boolean;
+  balance: number;
+  recharges_consumed: number;
+  joined_at: string;
+}
+
+export interface BetDetailResponse {
+  id: string;
+  amount: number;
+  odds: number;
+  potential_win: number;
+  status: 'ACCEPTED' | 'WON' | 'LOST' | 'VOIDED';
+  placed_at: string;
+  match_title: string;
+  market_name: string;
+  option_name: string;
+}
+
+export interface PaginatedBetResponse {
+  data: BetDetailResponse[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+  };
+}

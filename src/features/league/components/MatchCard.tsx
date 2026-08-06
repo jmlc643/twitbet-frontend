@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AnimatedOdds } from '@/components/ui/AnimatedOdds';
 import { CreateMarketModal } from './CreateMarketModal';
+import { PlaceBetModal } from './PlaceBetModal';
+import { useState } from 'react';
 
 interface MatchCardProps {
   match: MatchResponse;
@@ -16,6 +18,24 @@ interface MatchCardProps {
 
 export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
   const navigate = useNavigate();
+
+  const [betModal, setBetModal] = useState<{
+    isOpen: boolean;
+    leagueId: string;
+    marketId: string;
+    optionId: string;
+    optionName: string;
+    marketName: string;
+    currentOdds: number;
+  }>({
+    isOpen: false,
+    leagueId: '',
+    marketId: '',
+    optionId: '',
+    optionName: '',
+    marketName: '',
+    currentOdds: 0,
+  });
 
   const { data: markets = [] } = useQuery({
     queryKey: ['match-markets', match.id],
@@ -82,10 +102,25 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
                         const textClass = flash ? 'text-white' : 'text-neutral-900 dark:text-white';
                         const labelClass = flash ? 'text-white/80' : 'text-neutral-500 dark:text-neutral-400';
 
+                        const isBetDisabled = market.status === 'SUSPENDED' || match.status === 'FINISHED' || match.status === 'VOIDED';
+
                         return (
                           <Button 
                             variant="outline" 
-                            disabled={market.status === 'SUSPENDED'}
+                            disabled={isBetDisabled}
+                            onClick={() => {
+                              if (!isBetDisabled) {
+                                setBetModal({
+                                  isOpen: true,
+                                  leagueId: match.league_id,
+                                  marketId: market.id,
+                                  optionId: opt.id,
+                                  optionName: opt.name,
+                                  marketName: market.name,
+                                  currentOdds: currentOdds
+                                });
+                              }
+                            }}
                             className={`flex flex-col items-center justify-center py-2 h-auto hover:bg-indigo-50 hover:border-indigo-200 dark:hover:bg-indigo-950/30 dark:hover:border-indigo-800 transition-colors duration-500 disabled:opacity-50 disabled:cursor-not-allowed ${flashClass}`}
                           >
                             <span className={`text-[10px] font-medium mb-1 truncate w-full text-center ${labelClass}`}>
@@ -119,6 +154,11 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
             <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
+        
+        <PlaceBetModal
+          {...betModal}
+          onClose={() => setBetModal(prev => ({ ...prev, isOpen: false }))}
+        />
       </CardContent>
     </Card>
   );

@@ -62,6 +62,19 @@ export const useLiveMarkets = () => {
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['match-markets'] }, updateMarketOdds);
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['league-markets'] }, updateMarketOdds);
           }
+          
+          if (data.type === 'MARKET_STATUS_CHANGED' && (data.status === 'RESOLVED' || data.status === 'VOIDED')) {
+             queryClient.invalidateQueries({ queryKey: ['user-leagues'] });
+          }
+
+          if (data.type === 'MATCH_STATUS_CHANGED') {
+            queryClient.invalidateQueries({ queryKey: ['league-matches'] });
+            queryClient.invalidateQueries({ queryKey: ['match-details', data.match_id] });
+            
+            if (data.status === 'VOIDED' || data.status === 'FINISHED') {
+              queryClient.invalidateQueries({ queryKey: ['user-leagues'] });
+            }
+          }
         } catch {
           // ignorar errores
         }

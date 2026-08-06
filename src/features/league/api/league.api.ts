@@ -14,7 +14,10 @@ import type {
   GetMatchesResponse,
   UpdateMarketStatusRequest,
   UpdateMarketOddsRequest,
-  GetMatchDetailsResponse
+  GetMatchDetailsResponse,
+  PlaceBetRequest,
+  ResolveMarketRequest,
+  UpdateMatchStatusRequest
 } from '../types/league.types';
 
 export const leagueApi = {
@@ -97,5 +100,17 @@ export const leagueApi = {
 
   removeAdmin: async (leagueId: string, participantId: string): Promise<void> => {
     await api.delete(`/leagues/${leagueId}/admins/${participantId}`);
+  },
+
+  placeBet: async (data: PlaceBetRequest): Promise<void> => {
+    await api.post('/bets', data);
+  },
+
+  resolveMarket: async (marketId: string, data: ResolveMarketRequest): Promise<void> => {
+    await api.post(`/markets/${marketId}/resolve`, data);
+  },
+
+  updateMatchStatus: async (matchId: string, data: UpdateMatchStatusRequest): Promise<void> => {
+    await api.patch(`/matches/${matchId}/status`, data);
   }
 };

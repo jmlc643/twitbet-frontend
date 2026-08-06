@@ -129,10 +129,31 @@ export interface UpdateMarketOddsRequest {
   options_odds: Record<string, number>;
 }
 
+export interface PlaceBetRequest {
+  league_id: string;
+  market_id: string;
+  market_option_id: string;
+  amount: number;
+}
+
+export interface ResolveMarketRequest {
+  winning_option_id: string;
+}
+
+export interface UpdateMatchStatusRequest {
+  status: 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'VOIDED';
+}
+
 export interface WsMarketStatusChanged {
   type: 'MARKET_STATUS_CHANGED';
   market_id: string;
-  status: 'ACTIVE' | 'SUSPENDED';
+  status: 'ACTIVE' | 'SUSPENDED' | 'RESOLVED' | 'VOIDED';
+}
+
+export interface WsMatchStatusChanged {
+  type: 'MATCH_STATUS_CHANGED';
+  match_id: string;
+  status: 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'VOIDED';
 }
 
 export interface WsOddsUpdated {
@@ -147,4 +168,4 @@ export interface WsOddsUpdated {
   }[];
 }
 
-export type WebSocketEvent = WsMarketStatusChanged | WsOddsUpdated;
+export type WebSocketEvent = WsMarketStatusChanged | WsOddsUpdated | WsMatchStatusChanged;

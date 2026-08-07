@@ -159,6 +159,7 @@ export interface WsMatchStatusChanged {
 export interface WsMarketResolved {
   type: 'MARKET_RESOLVED';
   market_id: string;
+  league_id: string;
   winning_option_id: string;
 }
 
@@ -191,13 +192,14 @@ export interface BetDetailResponse {
   amount: number;
   odds: number;
   potential_win: number;
-  status: 'ACCEPTED' | 'WON' | 'LOST' | 'VOIDED';
+  status: 'ACCEPTED' | 'WON' | 'LOST' | 'VOIDED' | 'CASHOUT';
   placed_at: string;
   match_title: string;
   market_id: string;
   market_name: string;
   option_id: string;
   option_name: string;
+  cashout_amount?: number;
 }
 
 export interface PaginatedBetResponse {

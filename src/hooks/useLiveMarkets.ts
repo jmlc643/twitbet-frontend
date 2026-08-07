@@ -3,7 +3,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
 import confetti from 'canvas-confetti';
 import { toast } from 'sonner';
-import type { MarketResponse, WebSocketEvent, PaginatedBetResponse } from '@/features/league/types/league.types';
+import type { MarketResponse, WebSocketEvent } from '@/features/league/types/league.types';
+import { leagueApi } from '@/features/league/api/league.api';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export const useLiveMarkets = () => {
@@ -70,51 +71,64 @@ export const useLiveMarkets = () => {
           }
 
           if (data.type === 'MARKET_RESOLVED') {
-            const allBetsQueries = queryClient.getQueriesData<PaginatedBetResponse>({ queryKey: ['participantBets'] });
-            
-            let wonCount = 0;
-            let lostCount = 0;
-            let totalWonAmount = 0;
-            
-            for (const [, cachedData] of allBetsQueries) {
-              if (!cachedData || !cachedData.data) continue;
-              
-              for (const bet of cachedData.data) {
-                if (bet.market_id === data.market_id && bet.status === 'ACCEPTED') {
-                  if (bet.option_id === data.winning_option_id) {
-                    wonCount++;
-                    totalWonAmount += bet.potential_win;
-                  } else {
-                    lostCount++;
+            const checkBets = async () => {
+              try {
+                const urlLeagueId = window.location.pathname.split('/leagues/')[1]?.split('/')[0];
+                const targetLeagueId = data.league_id || urlLeagueId;
+                
+                if (!targetLeagueId) {
+                  return;
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                const res = await leagueApi.getParticipantBets(targetLeagueId, undefined, 1, 50);
+                
+                let wonCount = 0;
+                let lostCount = 0;
+                let totalWonAmount = 0;
+                
+                for (const bet of res.data) {
+                  if (bet.market_id === data.market_id) {
+                    if (bet.status === 'WON') {
+                      wonCount++;
+                      totalWonAmount += bet.potential_win;
+                    } else if (bet.status === 'LOST') {
+                      lostCount++;
+                    }
                   }
                 }
-              }
-            }
 
-            if (wonCount > 0 || lostCount > 0) {
-              if (wonCount > 0 && lostCount === 0) {
-                toast.success(`¡Felicidades! Ganaste ${wonCount === 1 ? 'tu apuesta' : 'tus ' + wonCount + ' apuestas'} (+$${totalWonAmount.toFixed(2)}).`);
-                confetti({
-                  particleCount: 150,
-                  spread: 70,
-                  origin: { y: 0.6 },
-                  colors: ['#22c55e', '#3b82f6', '#f59e0b', '#eab308']
-                });
-              } else if (wonCount === 0 && lostCount > 0) {
-                toast.error(`Perdiste ${lostCount === 1 ? 'tu apuesta' : 'tus ' + lostCount + ' apuestas'} en un mercado resuelto.`);
-              } else {
-                toast.success(`Mercado resuelto: Ganaste ${wonCount} apuesta${wonCount > 1 ? 's' : ''} (+$${totalWonAmount.toFixed(2)}) y perdiste ${lostCount}.`);
-                confetti({
-                  particleCount: 150,
-                  spread: 70,
-                  origin: { y: 0.6 },
-                  colors: ['#22c55e', '#3b82f6', '#f59e0b', '#eab308']
-                });
+                if (wonCount > 0 || lostCount > 0) {
+                  if (wonCount > 0 && lostCount === 0) {
+                    toast.success(`¡Felicidades! Ganaste ${wonCount === 1 ? 'tu apuesta' : 'tus ' + wonCount + ' apuestas'} (+S/. ${totalWonAmount.toFixed(2)}).`);
+                    confetti({
+                      particleCount: 150,
+                      spread: 70,
+                      origin: { y: 0.6 },
+                      colors: ['#22c55e', '#3b82f6', '#f59e0b', '#eab308']
+                    });
+                  } else if (wonCount === 0 && lostCount > 0) {
+                    toast.error(`Perdiste ${lostCount === 1 ? 'tu apuesta' : 'tus ' + lostCount + ' apuestas'} en un mercado resuelto.`);
+                  } else {
+                    toast.success(`Mercado resuelto: Ganaste ${wonCount} apuesta${wonCount > 1 ? 's' : ''} (+S/. ${totalWonAmount.toFixed(2)}) y perdiste ${lostCount}.`);
+                    confetti({
+                      particleCount: 150,
+                      spread: 70,
+                      origin: { y: 0.6 },
+                      colors: ['#22c55e', '#3b82f6', '#f59e0b', '#eab308']
+                    });
+                  }
+                  
+                  queryClient.invalidateQueries({ queryKey: ['participantBets'] });
+                  queryClient.invalidateQueries({ queryKey: ['participantMe'] });
+                }
+              } catch (error) {
+                toast.error("Ocurrió un error al verificar los resultados de tus apuestas.");
               }
-              
-              queryClient.invalidateQueries({ queryKey: ['participantBets'] });
-              queryClient.invalidateQueries({ queryKey: ['participantMe'] });
-            }
+            };
+            
+            checkBets();
           }
 
           if (data.type === 'MATCH_STATUS_CHANGED') {
@@ -147,6 +161,7 @@ export const useLiveMarkets = () => {
 
     return () => {
       if (wsRef.current) {
+        wsRef.current.onclose = null;
         wsRef.current.close();
       }
     };

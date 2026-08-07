@@ -135,5 +135,9 @@ export const leagueApi = {
     if (endDate) params.append('end_date', endDate);
     const response = await api.get<PaginatedBetResponse>(`/leagues/${leagueId}/bets?${params.toString()}`);
     return response.data;
+  },
+
+  cashoutBet: async (betId: string): Promise<void> => {
+    await api.post(`/bets/${betId}/cashout`);
   }
 };

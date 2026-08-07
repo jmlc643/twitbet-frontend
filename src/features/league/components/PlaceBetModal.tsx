@@ -106,7 +106,7 @@ export const PlaceBetModal = ({
         <div className="space-y-4">
           <div>
             <label htmlFor="amount" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Monto a Apostar ($)
+              Monto a Apostar (S/.)
             </label>
             <Input
               id="amount"
@@ -124,7 +124,7 @@ export const PlaceBetModal = ({
           <div className="flex justify-between items-center px-2">
             <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Ganancia Potencial:</span>
             <span className="text-lg font-black text-emerald-600 dark:text-emerald-400">
-              ${potentialWin.toFixed(2)}
+              S/. {potentialWin.toFixed(2)}
             </span>
           </div>
 

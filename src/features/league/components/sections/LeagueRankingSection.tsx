@@ -93,7 +93,7 @@ export const LeagueRankingSection = ({ league, currentUserId }: LeagueRankingSec
                     </td>
                     <td className="px-6 py-4 text-right">
                       <span className="font-mono text-base font-semibold text-emerald-600 dark:text-emerald-400">
-                        ${participant.balance.toFixed(2)}
+                        S/. {participant.balance.toFixed(2)}
                       </span>
                     </td>
                   </tr>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { format } from 'date-fns';
 import { isAxiosError } from 'axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -18,6 +19,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { DatePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
 
 interface CreateMatchModalProps {
   leagueId: string;
@@ -125,12 +128,45 @@ export const CreateMatchModal = ({ leagueId }: CreateMatchModalProps) => {
               )}
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Fecha y Hora</label>
-              <Input
-                {...form.register('start_time')}
-                type="datetime-local"
-                className="bg-neutral-100 dark:bg-neutral-900 border-neutral-300 dark:border-neutral-800"
+            <div className="space-y-1 flex flex-col">
+              <label className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-1">Fecha y Hora</label>
+              <Controller
+                control={form.control}
+                name="start_time"
+                render={({ field }) => {
+                  const dateVal = field.value && !isNaN(new Date(field.value).getTime()) ? new Date(field.value) : undefined;
+                  const timeVal = field.value && field.value.includes('T') ? field.value.split('T')[1].substring(0, 5) : '12:00';
+                  
+                  return (
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <DatePicker
+                          date={dateVal}
+                          setDate={(d) => {
+                            if (d) {
+                              const dateStr = format(d, 'yyyy-MM-dd');
+                              field.onChange(`${dateStr}T${timeVal}`);
+                            } else {
+                              field.onChange('');
+                            }
+                          }}
+                          placeholder="Fecha del partido"
+                        />
+                      </div>
+                      <div className="w-[120px]">
+                        <TimePicker
+                          value={timeVal}
+                          onChange={(e) => {
+                            if (dateVal) {
+                              const dateStr = format(dateVal, 'yyyy-MM-dd');
+                              field.onChange(`${dateStr}T${e.target.value}`);
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                }}
               />
               {form.formState.errors.start_time && (
                 <span className="text-[11px] font-medium text-red-500 block">{form.formState.errors.start_time.message}</span>

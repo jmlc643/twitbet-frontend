@@ -159,6 +159,7 @@ export interface WsMatchStatusChanged {
 export interface WsMarketResolved {
   type: 'MARKET_RESOLVED';
   market_id: string;
+  league_id: string;
   winning_option_id: string;
 }
 

@@ -57,6 +57,7 @@ export interface GetLeagueDetailsResponse {
   is_ranking_visible: boolean;
   invite_code: string;
   created_at: string;
+  participants_count: number;
   participants: Participant[] | null;
 }
 
@@ -134,6 +135,7 @@ export interface PlaceBetRequest {
   market_id: string;
   market_option_id: string;
   amount: number;
+  bonus_id?: string;
 }
 
 export interface ResolveMarketRequest {
@@ -209,4 +211,20 @@ export interface PaginatedBetResponse {
     page: number;
     limit: number;
   };
+}
+
+export interface BonusResponse {
+  id: string;
+  amount: number;
+  status: 'PENDING' | 'USED' | 'EXPIRED';
+  created_at: string;
+}
+
+export interface RechargeResponse {
+  balance: number;
+  recharges_consumed: number;
+}
+
+export interface GrantBonusRequest {
+  amount: number;
 }

@@ -19,7 +19,10 @@ import type {
   ResolveMarketRequest,
   UpdateMatchStatusRequest,
   ParticipantMeResponse,
-  PaginatedBetResponse
+  PaginatedBetResponse,
+  BonusResponse,
+  RechargeResponse,
+  GrantBonusRequest
 } from '../types/league.types';
 
 export const leagueApi = {
@@ -139,5 +142,19 @@ export const leagueApi = {
 
   cashoutBet: async (betId: string): Promise<void> => {
     await api.post(`/bets/${betId}/cashout`);
+  },
+
+  recharge: async (leagueId: string): Promise<RechargeResponse> => {
+    const response = await api.post<RechargeResponse>(`/leagues/${leagueId}/recharge`);
+    return response.data;
+  },
+
+  grantBonus: async (leagueId: string, data: GrantBonusRequest): Promise<void> => {
+    await api.post(`/leagues/${leagueId}/bonuses`, data);
+  },
+
+  getMyBonuses: async (leagueId: string): Promise<BonusResponse[]> => {
+    const response = await api.get<BonusResponse[]>(`/leagues/${leagueId}/bonuses/me`);
+    return response.data;
   }
 };

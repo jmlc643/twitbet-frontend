@@ -123,7 +123,7 @@ export const useLiveMarkets = () => {
                   queryClient.invalidateQueries({ queryKey: ['participantBets'] });
                   queryClient.invalidateQueries({ queryKey: ['participantMe'] });
                 }
-              } catch (error) {
+              } catch {
                 toast.error("Ocurrió un error al verificar los resultados de tus apuestas.");
               }
             };

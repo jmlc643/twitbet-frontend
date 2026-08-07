@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { leagueApi } from '@/features/league/api/league.api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Activity, CheckCircle2 } from 'lucide-react';
+import { Activity } from 'lucide-react';
+import { BetSuccessMessage } from './bets/BetSuccessMessage';
+import { BetBonusSelector } from './bets/BetBonusSelector';
 
 interface PlaceBetModalProps {
   isOpen: boolean;
@@ -31,6 +33,15 @@ export const PlaceBetModal = ({
   const [amount, setAmount] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [selectedBonusId, setSelectedBonusId] = useState<string | null>(null);
+
+  const { data: bonuses } = useQuery({
+    queryKey: ['league-bonuses', leagueId],
+    queryFn: () => leagueApi.getMyBonuses(leagueId),
+    enabled: isOpen,
+  });
+
+  const pendingBonuses = bonuses?.filter(b => b.status === 'PENDING') || [];
 
   const betMutation = useMutation({
     mutationFn: (betAmount: number) => 
@@ -38,7 +49,8 @@ export const PlaceBetModal = ({
         league_id: leagueId,
         market_id: marketId,
         market_option_id: optionId,
-        amount: betAmount
+        amount: betAmount,
+        ...(selectedBonusId ? { bonus_id: selectedBonusId } : {})
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-leagues'] });
@@ -49,6 +61,7 @@ export const PlaceBetModal = ({
         setAmount('');
         setError(null);
         setIsSuccess(false);
+        setSelectedBonusId(null);
       }, 2000);
     },
     onError: (err: unknown) => {
@@ -67,10 +80,18 @@ export const PlaceBetModal = ({
     betMutation.mutate(numAmount);
   };
 
+  const handleClose = () => {
+    setAmount('');
+    setError(null);
+    setIsSuccess(false);
+    setSelectedBonusId(null);
+    onClose();
+  };
+
   const potentialWin = parseFloat(amount || '0') * currentOdds;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center text-xl text-indigo-900 dark:text-indigo-100">
@@ -83,13 +104,7 @@ export const PlaceBetModal = ({
         </DialogHeader>
 
         {isSuccess ? (
-          <div className="flex flex-col items-center justify-center py-8 space-y-4 animate-in fade-in zoom-in duration-300">
-            <CheckCircle2 className="w-16 h-16 text-emerald-500" />
-            <div className="text-center">
-              <h3 className="text-xl font-bold text-neutral-900 dark:text-white">¡Apuesta Confirmada!</h3>
-              <p className="text-neutral-500 dark:text-neutral-400 mt-1">Tu apuesta se ha registrado exitosamente.</p>
-            </div>
-          </div>
+          <BetSuccessMessage />
         ) : (
           <>
             <div className="bg-indigo-50 dark:bg-indigo-950/20 p-4 rounded-xl space-y-2 mb-4 border border-indigo-100 dark:border-indigo-900/50">
@@ -104,9 +119,10 @@ export const PlaceBetModal = ({
         </div>
 
         <div className="space-y-4">
+
           <div>
             <label htmlFor="amount" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Monto a Apostar (S/.)
+              Monto a Apostar (S/.) {selectedBonusId && '(Bloqueado por bono)'}
             </label>
             <Input
               id="amount"
@@ -118,6 +134,7 @@ export const PlaceBetModal = ({
               onChange={(e) => setAmount(e.target.value)}
               className="text-lg"
               autoFocus
+              disabled={!!selectedBonusId}
             />
           </div>
 
@@ -133,6 +150,15 @@ export const PlaceBetModal = ({
               {error}
             </div>
           )}
+
+          <BetBonusSelector 
+            pendingBonuses={pendingBonuses}
+            selectedBonusId={selectedBonusId}
+            onSelectBonus={(id, bonusAmount) => {
+              setSelectedBonusId(id);
+              setAmount(bonusAmount ? bonusAmount.toString() : '');
+            }}
+          />
         </div>
 
           <DialogFooter className="mt-6 flex gap-2 sm:gap-0">

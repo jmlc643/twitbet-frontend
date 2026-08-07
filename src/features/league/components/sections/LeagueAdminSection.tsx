@@ -7,6 +7,7 @@ import { EditLeagueModal } from '@/features/league/components/EditLeagueModal';
 import { CreateMatchModal } from '@/features/league/components/CreateMatchModal';
 import { CreateMarketModal } from '@/features/league/components/CreateMarketModal';
 import { ManageAdminsModal } from '@/features/league/components/ManageAdminsModal';
+import { GrantBonusModal } from '@/features/league/components/GrantBonusModal';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
   Dialog,
@@ -63,6 +64,11 @@ export const LeagueAdminSection = ({ league, onDelete, isDeleting }: LeagueAdmin
           <div className="w-full">
             <CreateMarketModal leagueId={league.league_id} />
           </div>
+          {isOwner && (
+            <div className="w-full">
+              <GrantBonusModal leagueId={league.league_id} />
+            </div>
+          )}
           {isOwner && (
             <div className="w-full">
               <ManageAdminsModal league={league} />

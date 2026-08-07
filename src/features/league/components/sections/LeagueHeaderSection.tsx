@@ -27,7 +27,7 @@ export const LeagueHeaderSection = ({ league, isAdmin = true }: LeagueHeaderSect
                 <Activity className="w-3 h-3 mr-1"/> Mi Balance Disponible
               </span>
               <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                ${participantMe.balance.toFixed(2)}
+                S/. {participantMe.balance.toFixed(2)}
               </span>
             </div>
           )}
@@ -44,7 +44,7 @@ export const LeagueHeaderSection = ({ league, isAdmin = true }: LeagueHeaderSect
           </div>
           <div className="flex flex-col space-y-1">
             <span className="text-xs text-neutral-500 dark:text-zinc-500 uppercase tracking-wider font-semibold flex items-center"><Wallet className="w-3 h-3 mr-1"/> Saldo Inicial</span>
-            <span className="text-lg font-medium text-neutral-900 dark:text-white">${league.initial_balance}</span>
+            <span className="text-lg font-medium text-neutral-900 dark:text-white">S/. {league.initial_balance}</span>
           </div>
           <div className="flex flex-col space-y-1">
             <span className="text-xs text-neutral-500 dark:text-zinc-500 uppercase tracking-wider font-semibold flex items-center"><Users className="w-3 h-3 mr-1"/> Participantes</span>

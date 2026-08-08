@@ -102,7 +102,7 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
                         const textClass = flash ? 'text-white' : 'text-neutral-900 dark:text-white';
                         const labelClass = flash ? 'text-white/80' : 'text-neutral-500 dark:text-neutral-400';
 
-                        const isBetDisabled = market.status === 'SUSPENDED' || match.status === 'FINISHED' || match.status === 'VOIDED';
+                        const isBetDisabled = market.status === 'SUSPENDED' || market.status === 'CANCELLED' || market.status === 'RESOLVED' || match.status === 'FINISHED' || match.status === 'VOIDED';
 
                         return (
                           <Button 

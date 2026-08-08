@@ -22,7 +22,8 @@ import type {
   PaginatedBetResponse,
   BonusResponse,
   RechargeResponse,
-  GrantBonusRequest
+  GrantBonusRequest,
+  CancelMarketRequest
 } from '../types/league.types';
 
 export const leagueApi = {
@@ -113,6 +114,10 @@ export const leagueApi = {
 
   resolveMarket: async (marketId: string, data: ResolveMarketRequest): Promise<void> => {
     await api.post(`/markets/${marketId}/resolve`, data);
+  },
+
+  cancelMarket: async (marketId: string, data: CancelMarketRequest): Promise<void> => {
+    await api.post(`/markets/${marketId}/cancel`, data);
   },
 
   updateMatchStatus: async (matchId: string, data: UpdateMatchStatusRequest): Promise<void> => {

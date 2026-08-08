@@ -121,9 +121,9 @@ export const MatchDetailsPage = () => {
 
                         return (
                               <div 
-                                className={`flex flex-col items-center justify-center py-3 px-2 border rounded-xl transition-colors duration-500 ${flashClass} ${market.status === 'SUSPENDED' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:shadow-md'}`}
+                                className={`flex flex-col items-center justify-center py-3 px-2 border rounded-xl transition-colors duration-500 ${flashClass} ${(market.status === 'SUSPENDED' || market.status === 'CANCELLED' || market.status === 'RESOLVED') ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:shadow-md'}`}
                                 onClick={() => {
-                                  if (market.status !== 'SUSPENDED') {
+                                  if (market.status !== 'SUSPENDED' && market.status !== 'CANCELLED' && market.status !== 'RESOLVED') {
                                     setBetModal({
                                       isOpen: true,
                                       leagueId: match.league_id,

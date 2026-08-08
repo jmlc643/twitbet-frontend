@@ -142,6 +142,10 @@ export interface ResolveMarketRequest {
   winning_option_id: string;
 }
 
+export interface CancelMarketRequest {
+  cancellation_reason: string;
+}
+
 export interface UpdateMatchStatusRequest {
   status: 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'VOIDED';
 }
@@ -149,7 +153,7 @@ export interface UpdateMatchStatusRequest {
 export interface WsMarketStatusChanged {
   type: 'MARKET_STATUS_CHANGED';
   market_id: string;
-  status: 'ACTIVE' | 'SUSPENDED' | 'RESOLVED' | 'VOIDED';
+  status: 'ACTIVE' | 'SUSPENDED' | 'RESOLVED' | 'VOIDED' | 'CANCELLED';
 }
 
 export interface WsMatchStatusChanged {
@@ -177,7 +181,14 @@ export interface WsOddsUpdated {
   }[];
 }
 
-export type WebSocketEvent = WsMarketStatusChanged | WsOddsUpdated | WsMatchStatusChanged | WsMarketResolved;
+export interface WsParticipantBalanceUpdated {
+  type: 'PARTICIPANT_BALANCE_UPDATED';
+  participant_id: string;
+  league_id: string;
+  user_id: string;
+}
+
+export type WebSocketEvent = WsMarketStatusChanged | WsOddsUpdated | WsMatchStatusChanged | WsMarketResolved | WsParticipantBalanceUpdated;
 
 export interface ParticipantMeResponse {
   id: string;

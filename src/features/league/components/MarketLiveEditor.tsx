@@ -3,9 +3,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { leagueApi } from '@/features/league/api/league.api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Lock, Unlock, Save, CheckCircle } from 'lucide-react';
+import { Lock, Unlock, Save, CheckCircle, Ban } from 'lucide-react';
 import type { MarketResponse } from '@/features/league/types/league.types';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { MarketResolveModal } from './MarketResolveModal';
+import { MarketCancelModal } from './MarketCancelModal';
 
 export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
   const queryClient = useQueryClient();
@@ -18,7 +19,7 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
   });
   
   const [isResolveModalOpen, setIsResolveModalOpen] = useState(false);
-  const [selectedWinnerId, setSelectedWinnerId] = useState<string | null>(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   const statusMutation = useMutation({
     mutationFn: (newStatus: 'ACTIVE' | 'SUSPENDED') => 
@@ -44,20 +45,6 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
     }
   });
 
-  const resolveMutation = useMutation({
-    mutationFn: (winningOptionId: string) => 
-      leagueApi.resolveMarket(market.id, { winning_option_id: winningOptionId }),
-    onSuccess: () => {
-      if (market.match_id) {
-        queryClient.invalidateQueries({ queryKey: ['match-markets', market.match_id] });
-      } else {
-        queryClient.invalidateQueries({ queryKey: ['league-markets', market.league_id] });
-      }
-      queryClient.invalidateQueries({ queryKey: ['user-leagues'] });
-      setIsResolveModalOpen(false);
-    }
-  });
-
   const handleStatusToggle = () => {
     const newStatus = market.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
     statusMutation.mutate(newStatus);
@@ -74,15 +61,9 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
     oddsMutation.mutate(odds);
   };
 
-  const handleResolve = () => {
-    if (selectedWinnerId) {
-      resolveMutation.mutate(selectedWinnerId);
-    }
-  };
-
   const isSuspended = market.status === 'SUSPENDED';
   const isResolved = market.status === 'RESOLVED';
-  const isVoided = market.status === 'VOIDED';
+  const isVoided = market.status === 'VOIDED' || market.status === 'CANCELLED';
   const isFinished = isResolved || isVoided;
 
   return (
@@ -99,8 +80,18 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
             <Button 
               variant="outline" 
               size="sm"
+              onClick={() => setIsCancelModalOpen(true)}
+              disabled={statusMutation.isPending}
+              className="border-red-200 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-900/20"
+            >
+              <Ban className="w-4 h-4 mr-2" />
+              Anular
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
               onClick={() => setIsResolveModalOpen(true)}
-              disabled={statusMutation.isPending || resolveMutation.isPending}
+              disabled={statusMutation.isPending}
               className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-900 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
             >
               <CheckCircle className="w-4 h-4 mr-2" />
@@ -156,41 +147,17 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
         </div>
       )}
 
-      {/* Resolve Market Modal */}
-      <Dialog open={isResolveModalOpen} onOpenChange={setIsResolveModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Resolver Mercado</DialogTitle>
-            <DialogDescription>
-              Selecciona la opción ganadora. Esta acción no se puede deshacer y pagará automáticamente las ganancias a los usuarios correspondientes.
-            </DialogDescription>
-          </DialogHeader>
+      <MarketResolveModal 
+        market={market} 
+        isOpen={isResolveModalOpen} 
+        onOpenChange={setIsResolveModalOpen} 
+      />
 
-          <div className="grid gap-2 py-4">
-            {market.options.map(opt => (
-              <Button
-                key={opt.id}
-                variant={selectedWinnerId === opt.id ? 'default' : 'outline'}
-                className={`justify-start ${selectedWinnerId === opt.id ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
-                onClick={() => setSelectedWinnerId(opt.id)}
-              >
-                {opt.name}
-              </Button>
-            ))}
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsResolveModalOpen(false)}>Cancelar</Button>
-            <Button 
-              onClick={handleResolve} 
-              disabled={!selectedWinnerId || resolveMutation.isPending}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
-            >
-              {resolveMutation.isPending ? 'Resolviendo...' : 'Confirmar Ganador'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <MarketCancelModal 
+        market={market} 
+        isOpen={isCancelModalOpen} 
+        onOpenChange={setIsCancelModalOpen} 
+      />
     </div>
   );
 };

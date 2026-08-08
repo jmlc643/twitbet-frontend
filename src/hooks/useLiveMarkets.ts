@@ -45,6 +45,14 @@ export const useLiveMarkets = () => {
 
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['match-markets'] }, updateMarketStatus);
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['league-markets'] }, updateMarketStatus);
+
+            if (data.status === 'CANCELLED') {
+              queryClient.invalidateQueries({ queryKey: ['participantMe'] });
+              queryClient.invalidateQueries({ queryKey: ['match-markets'] });
+              queryClient.invalidateQueries({ queryKey: ['league-markets'] });
+              queryClient.invalidateQueries({ queryKey: ['match-details'] });
+              toast.info('Un mercado ha sido anulado y tu dinero ha sido devuelto.');
+            }
           }
 
           if (data.type === 'ODDS_UPDATED') {
@@ -138,6 +146,10 @@ export const useLiveMarkets = () => {
             if (data.status === 'VOIDED' || data.status === 'FINISHED') {
               queryClient.invalidateQueries({ queryKey: ['user-leagues'] });
             }
+          }
+
+          if (data.type === 'PARTICIPANT_BALANCE_UPDATED') {
+            queryClient.invalidateQueries({ queryKey: ['participantMe'] });
           }
         } catch {
           // ignorar errores

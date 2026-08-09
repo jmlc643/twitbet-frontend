@@ -36,6 +36,7 @@ export const EditLeagueModal = ({ league }: EditLeagueModalProps) => {
       initial_balance: league.initial_balance,
       max_recharges: league.max_recharges,
       hide_standings: !league.is_ranking_visible,
+      min_bets_to_qualify: league.min_bets_to_qualify ?? 0,
     },
   });
 
@@ -69,6 +70,7 @@ export const EditLeagueModal = ({ league }: EditLeagueModalProps) => {
         initial_balance: league.initial_balance,
         max_recharges: league.max_recharges,
         hide_standings: !league.is_ranking_visible,
+        min_bets_to_qualify: league.min_bets_to_qualify ?? 0,
       });
       setApiError('');
     }
@@ -129,6 +131,16 @@ export const EditLeagueModal = ({ league }: EditLeagueModalProps) => {
                 <Input
                   {...form.register('max_recharges', { valueAsNumber: true })}
                   type="number"
+                  className="bg-neutral-100 dark:bg-neutral-900 border-neutral-300 dark:border-neutral-800"
+                />
+              </div>
+
+              <div className="space-y-1 col-span-2">
+                <label className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Mín. Apuestas para Calificar</label>
+                <Input
+                  {...form.register('min_bets_to_qualify', { valueAsNumber: true })}
+                  type="number"
+                  min="0"
                   className="bg-neutral-100 dark:bg-neutral-900 border-neutral-300 dark:border-neutral-800"
                 />
               </div>

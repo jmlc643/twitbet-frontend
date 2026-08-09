@@ -3,6 +3,7 @@ export interface CreateLeagueRequest {
   initial_balance: number;
   max_recharges?: number;
   hide_standings?: boolean;
+  min_bets_to_qualify?: number;
 }
 
 export interface CreateLeagueResponse {
@@ -59,6 +60,8 @@ export interface GetLeagueDetailsResponse {
   created_at: string;
   participants_count: number;
   participants: Participant[] | null;
+  min_bets_to_qualify?: number;
+  status: 'ACTIVE' | 'FINALIZED';
 }
 
 export interface UpdateLeagueRequest {
@@ -66,6 +69,7 @@ export interface UpdateLeagueRequest {
   initial_balance: number;
   max_recharges: number;
   hide_standings: boolean;
+  min_bets_to_qualify?: number;
 }
 
 export interface CreateMatchRequest {
@@ -238,4 +242,27 @@ export interface RechargeResponse {
 
 export interface GrantBonusRequest {
   amount: number;
+}
+
+export interface LeaderboardParticipant {
+  participant_id: string;
+  user_id: string;
+  username: string;
+  profile_picture?: string | null;
+  balance: number | null;
+  position: number | null;
+  role: 'OWNER' | 'ADMIN' | 'MEMBER';
+  is_unranked: boolean;
+}
+
+export interface GetLeaderboardResponse {
+  league_id: string;
+  status: 'ACTIVE' | 'FINALIZED';
+  hide_standings: boolean;
+  min_bets_to_qualify: number;
+  leaderboard: LeaderboardParticipant[];
+}
+
+export interface UpdateLeagueStatusRequest {
+  status: 'FINALIZED';
 }

@@ -5,6 +5,7 @@ export const createLeagueSchema = z.object({
   initial_balance: z.number().min(0, 'El balance inicial debe ser mayor o igual a 0'),
   max_recharges: z.number().min(1, 'El número de recargas debe ser al menos 1'),
   hide_standings: z.boolean(),
+  min_bets_to_qualify: z.number().min(0).optional(),
 });
 
 export type CreateLeagueInput = z.infer<typeof createLeagueSchema>;
@@ -20,6 +21,7 @@ export const updateLeagueSchema = z.object({
   initial_balance: z.number().min(0, 'El balance inicial debe ser mayor o igual a 0'),
   max_recharges: z.number().min(1, 'El número de recargas debe ser al menos 1'),
   hide_standings: z.boolean(),
+  min_bets_to_qualify: z.number().min(0).optional(),
 });
 
 export type UpdateLeagueInput = z.infer<typeof updateLeagueSchema>;

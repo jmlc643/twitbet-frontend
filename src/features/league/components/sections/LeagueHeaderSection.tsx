@@ -5,6 +5,7 @@ import type { GetLeagueDetailsResponse } from '../../types/league.types';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leagueApi } from '../../api/league.api';
 import { Button } from '@/components/ui/button';
+import { formatDateDDMMYYYY } from '@/lib/date';
 import { MyBonusesModal } from '../MyBonusesModal';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -57,7 +58,7 @@ export const LeagueHeaderSection = ({ league, isAdmin = true }: LeagueHeaderSect
           )}
         </CardTitle>
         <CardDescription className="text-neutral-500 dark:text-zinc-400 flex items-center mt-2">
-          Creado el {new Date(league.created_at).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' })}
+          Creado el {formatDateDDMMYYYY(league.created_at)}
         </CardDescription>
       </CardHeader>
       <CardContent>

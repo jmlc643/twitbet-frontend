@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { leagueApi } from '@/features/league/api/league.api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { formatDateDDMMYYYY } from '@/lib/date';
 import { Gift, Clock, AlertCircle } from 'lucide-react';
 
 interface MyBonusesModalProps {
@@ -57,7 +58,7 @@ export const MyBonusesModal = ({ isOpen, onClose, leagueId }: MyBonusesModalProp
                         </h4>
                         <div className="flex items-center text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                           <Clock className="w-3 h-3 mr-1" />
-                          {new Date(bonus.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                          {formatDateDDMMYYYY(bonus.created_at)}
                         </div>
                       </div>
                     </div>

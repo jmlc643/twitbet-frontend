@@ -1,6 +1,7 @@
 import { useAuthStore } from '@/store/useAuthStore';
 import { Card, CardContent } from '@/components/ui/card';
 import { EditProfileModal } from './EditProfileModal';
+import { ChangePasswordModal } from './ChangePasswordModal';
 import { UserAvatar } from '@/components/shared/UserAvatar';
 
 export const ProfileCard = () => {
@@ -8,7 +9,8 @@ export const ProfileCard = () => {
 
   return (
     <Card className="w-full h-full flex flex-col justify-center max-w-2xl mx-auto border bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100 shadow-xl transition-colors duration-200 relative overflow-hidden">
-      <div className="absolute top-4 right-4 z-10">
+      <div className="absolute top-4 right-4 z-10 flex gap-2">
+        <ChangePasswordModal />
         <EditProfileModal />
       </div>
       <CardContent className="p-6">

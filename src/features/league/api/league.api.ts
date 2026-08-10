@@ -23,7 +23,9 @@ import type {
   BonusResponse,
   RechargeResponse,
   GrantBonusRequest,
-  CancelMarketRequest
+  CancelMarketRequest,
+  UpdateLeagueStatusRequest,
+  GetLeaderboardResponse
 } from '../types/league.types';
 
 export const leagueApi = {
@@ -58,6 +60,15 @@ export const leagueApi = {
 
   deleteLeague: async (id: string): Promise<void> => {
     await api.delete(`/leagues/${id}`);
+  },
+
+  updateLeagueStatus: async (id: string, data: UpdateLeagueStatusRequest): Promise<void> => {
+    await api.patch(`/leagues/${id}/status`, data);
+  },
+
+  getLeaderboard: async (id: string): Promise<GetLeaderboardResponse> => {
+    const response = await api.get<GetLeaderboardResponse>(`/leagues/${id}/leaderboard`);
+    return response.data;
   },
 
   createMatch: async (leagueId: string, data: CreateMatchRequest): Promise<MatchResponse> => {

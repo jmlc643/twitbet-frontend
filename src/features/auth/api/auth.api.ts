@@ -1,5 +1,15 @@
 import { api } from '@/lib/axios';
-import type { AuthResponse, LoginRequest, RegisterRequest, User } from '../types/auth.types';
+import type {
+  AuthResponse,
+  LoginRequest,
+  RegisterRequest,
+  User,
+  VerifyAccountRequest,
+  ForgotPasswordRequest,
+  VerifyResetOtpRequest,
+  ResetPasswordRequest,
+  ChangePasswordRequest,
+} from '../types/auth.types';
 
 export const authApi = {
   register: async (data: RegisterRequest): Promise<AuthResponse> => {
@@ -7,8 +17,28 @@ export const authApi = {
     return response.data;
   },
 
+  verifyAccount: async (data: VerifyAccountRequest): Promise<AuthResponse> => {
+    const response = await api.post<AuthResponse>('/auth/verify-account', data);
+    return response.data;
+  },
+
   login: async (data: LoginRequest): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>('/auth/login', data);
+    return response.data;
+  },
+
+  forgotPassword: async (data: ForgotPasswordRequest): Promise<{ message: string }> => {
+    const response = await api.post<{ message: string }>('/auth/forgot-password', data);
+    return response.data;
+  },
+
+  verifyResetOtp: async (data: VerifyResetOtpRequest): Promise<{ message: string }> => {
+    const response = await api.post<{ message: string }>('/auth/verify-reset-otp', data);
+    return response.data;
+  },
+
+  resetPassword: async (data: ResetPasswordRequest): Promise<{ message: string }> => {
+    const response = await api.post<{ message: string }>('/auth/reset-password', data);
     return response.data;
   },
 
@@ -35,6 +65,13 @@ export const authApi = {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         'Content-Type': 'multipart/form-data',
       },
+    });
+    return response.data;
+  },
+
+  changePassword: async (data: ChangePasswordRequest, token?: string): Promise<{ message: string }> => {
+    const response = await api.post<{ message: string }>('/users/me/change-password', data, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     return response.data;
   },

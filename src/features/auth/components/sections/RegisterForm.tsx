@@ -2,15 +2,14 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isAxiosError } from 'axios';
-import { useNavigate } from 'react-router-dom';
 
-import { useAuthStore } from '@/store/useAuthStore';
 import { authApi } from '@/features/auth/api/auth.api';
 import { registerSchema } from '@/features/auth/schemas/auth.schema';
 import type { RegisterInput } from '@/features/auth/schemas/auth.schema';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { VerifyAccountForm } from './VerifyAccountForm';
 
 interface RegisterFormProps {
   onError: (error: string) => void;
@@ -18,9 +17,8 @@ interface RegisterFormProps {
 }
 
 export const RegisterForm = ({ onError, onClearError }: RegisterFormProps) => {
-  const setAuth = useAuthStore((state) => state.setAuth);
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
 
   const registerForm = useForm<RegisterInput>({ resolver: zodResolver(registerSchema) });
 
@@ -34,15 +32,24 @@ export const RegisterForm = ({ onError, onClearError }: RegisterFormProps) => {
     setLoading(true);
     onClearError();
     try {
-      const res = await authApi.register(data);
-      setAuth(res.user, res.token);
-      navigate('/profile');
+      await authApi.register(data);
+      setRegisteredEmail(data.email);
     } catch (err: unknown) {
       onError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
+
+  if (registeredEmail) {
+    return (
+      <VerifyAccountForm
+        email={registeredEmail}
+        onError={onError}
+        onClearError={onClearError}
+      />
+    );
+  }
 
   return (
     <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4 mt-4">
@@ -81,6 +88,19 @@ export const RegisterForm = ({ onError, onClearError }: RegisterFormProps) => {
         />
         {registerForm.formState.errors.password && (
           <span className="text-[10px] text-red-500 mt-1">{registerForm.formState.errors.password.message}</span>
+        )}
+      </div>
+
+      <div>
+        <label className="text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase">Confirmar Contraseña</label>
+        <Input
+          {...registerForm.register('confirm_password')}
+          type="password"
+          placeholder="••••••••"
+          className="bg-neutral-50 dark:bg-neutral-950 border-neutral-300 dark:border-neutral-800"
+        />
+        {registerForm.formState.errors.confirm_password && (
+          <span className="text-[10px] text-red-500 mt-1">{registerForm.formState.errors.confirm_password.message}</span>
         )}
       </div>
 

@@ -26,6 +26,7 @@ export const CreateLeagueForm = () => {
       initial_balance: 1000,
       max_recharges: 2,
       hide_standings: false,
+      min_bets_to_qualify: 0,
     },
   });
 
@@ -125,6 +126,20 @@ export const CreateLeagueForm = () => {
               />
               {form.formState.errors.max_recharges && (
                 <span className="text-[11px] font-medium text-red-500 mt-1 block">{form.formState.errors.max_recharges.message}</span>
+              )}
+            </div>
+            
+            <div className="space-y-1.5 col-span-2">
+              <label className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Mín. Apuestas para Calificar (Opcional)</label>
+              <Input
+                {...form.register('min_bets_to_qualify', { valueAsNumber: true })}
+                type="number"
+                min="0"
+                placeholder="0 (Sin mínimo)"
+                className="bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-800 h-11 text-base focus-visible:ring-red-500/30 transition-all duration-200"
+              />
+              {form.formState.errors.min_bets_to_qualify && (
+                <span className="text-[11px] font-medium text-red-500 mt-1 block">{form.formState.errors.min_bets_to_qualify.message}</span>
               )}
             </div>
           </div>

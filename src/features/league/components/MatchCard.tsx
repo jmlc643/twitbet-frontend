@@ -1,7 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, Trophy, ChevronRight, Lock } from 'lucide-react';
-import { leagueApi } from '@/features/league/api/league.api';
 import type { MatchResponse } from '@/features/league/types/league.types';
 import { mapMatchStatus, getStatusColor } from '@/features/league/utils/statusMapper';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -37,11 +36,7 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
     currentOdds: 0,
   });
 
-  const { data: markets = [] } = useQuery({
-    queryKey: ['match-markets', match.id],
-    queryFn: () => leagueApi.getMatchMarkets(match.id),
-  });
-
+  const markets = match.markets || [];
   const previewMarkets = markets.slice(0, 3);
   const date = new Date(match.start_time);
   
@@ -68,7 +63,7 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
               </span>
             </div>
           </div>
-          {isAdmin && (
+          {isAdmin && match.status !== 'FINISHED' && match.status !== 'VOIDED' && (
             <div className="shrink-0 ml-4">
               <CreateMarketModal leagueId={match.league_id} matchId={match.id} />
             </div>
@@ -150,7 +145,7 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
             className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:text-indigo-300 dark:hover:bg-indigo-950/30 text-sm font-semibold group-hover:translate-x-1 transition-transform"
             onClick={() => navigate(`/matches/${match.slug}`)}
           >
-            Ver todos los mercados (+{Math.max(0, markets.length - 3)})
+            Ver todos los mercados
             <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
         </div>

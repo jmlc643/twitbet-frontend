@@ -84,6 +84,7 @@ export interface MatchResponse {
   title: string;
   start_time: string;
   status: string;
+  markets?: MarketResponse[];
   created_at: string;
   updated_at: string;
 }

@@ -13,7 +13,11 @@ export const Navbar = () => {
     <header className="w-full border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex justify-between items-center py-3 px-6">
         <Link to="/" className="flex items-center gap-3">
-          <span className="text-2xl font-black tracking-tighter text-red-600">TWITBET</span>
+          <img 
+            src={isDarkMode ? '/logo/twitbet-dark-logo.webp' : '/logo/twitbet-light-logo.webp'} 
+            alt="TwitBet Logo" 
+            className="h-14 w-auto" 
+          />
         </Link>
 
         <div className="flex items-center gap-3">

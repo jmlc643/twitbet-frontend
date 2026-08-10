@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { leagueApi } from '@/features/league/api/league.api';
+import { formatDateTimeDDMMYYYY } from '@/lib/date';
 import type { BetDetailResponse } from '@/features/league/types/league.types';
 
 interface BetTicketProps {
@@ -76,7 +77,7 @@ export const BetTicket = ({ bet }: BetTicketProps) => {
             {bet.market_name}
           </span>
           <span className="text-sm text-neutral-500 dark:text-neutral-400 font-medium">
-            {new Date(bet.placed_at).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' })} {new Date(bet.placed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            {formatDateTimeDDMMYYYY(bet.placed_at)}
           </span>
         </div>
         <h4 className="font-bold text-neutral-900 dark:text-white">

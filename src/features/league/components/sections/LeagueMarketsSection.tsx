@@ -1,15 +1,35 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { leagueApi } from '@/features/league/api/league.api';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { TrendingUp, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AnimatedOdds } from '@/components/ui/AnimatedOdds';
+import { PlaceBetModal } from '../PlaceBetModal';
 
 interface LeagueMarketsSectionProps {
   leagueId: string;
 }
 
 export const LeagueMarketsSection = ({ leagueId }: LeagueMarketsSectionProps) => {
+  const [betModal, setBetModal] = useState<{
+    isOpen: boolean;
+    leagueId: string;
+    marketId: string;
+    optionId: string;
+    optionName: string;
+    marketName: string;
+    currentOdds: number;
+  }>({
+    isOpen: false,
+    leagueId: '',
+    marketId: '',
+    optionId: '',
+    optionName: '',
+    marketName: '',
+    currentOdds: 0,
+  });
+
   const { data: markets, isLoading, isError } = useQuery({
     queryKey: ['league-markets', leagueId],
     queryFn: () => leagueApi.getLeagueMarkets(leagueId),
@@ -74,11 +94,25 @@ export const LeagueMarketsSection = ({ leagueId }: LeagueMarketsSectionProps) =>
                         
                       const textClass = flash ? 'text-white' : 'text-emerald-700 dark:text-emerald-400';
                       const labelClass = flash ? 'text-white/80' : 'text-neutral-500 dark:text-neutral-400';
+                      const isBetDisabled = market.status === 'SUSPENDED' || market.status === 'CANCELLED' || market.status === 'RESOLVED';
 
                       return (
                         <Button 
                           variant="outline" 
-                          disabled={market.status === 'SUSPENDED'}
+                          disabled={isBetDisabled}
+                          onClick={() => {
+                            if (!isBetDisabled) {
+                              setBetModal({
+                                isOpen: true,
+                                leagueId: leagueId,
+                                marketId: market.id,
+                                optionId: opt.id,
+                                optionName: opt.name,
+                                marketName: market.name,
+                                currentOdds: currentOdds
+                              });
+                            }
+                          }}
                           className={`flex flex-col items-center justify-center py-3 h-auto hover:bg-emerald-50 hover:border-emerald-300 dark:hover:bg-emerald-950/30 dark:hover:border-emerald-800 transition-colors duration-500 disabled:opacity-50 disabled:cursor-not-allowed ${flashClass}`}
                         >
                           <span className={`text-xs font-medium mb-1 truncate w-full text-center ${labelClass}`}>
@@ -97,6 +131,12 @@ export const LeagueMarketsSection = ({ leagueId }: LeagueMarketsSectionProps) =>
           </Card>
         ))}
       </div>
+      
+      <PlaceBetModal
+        {...betModal}
+        onClose={() => setBetModal(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };
+

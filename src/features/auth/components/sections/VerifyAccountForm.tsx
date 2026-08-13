@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isAxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -56,20 +56,26 @@ export const VerifyAccountForm = ({ email, onError, onClearError, onSuccess }: V
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="flex flex-col items-center justify-center space-y-2">
-          <InputOTP
-            maxLength={6}
-            value={form.watch('otp_code')}
-            onChange={(val) => form.setValue('otp_code', val)}
-          >
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
-            </InputOTPGroup>
-          </InputOTP>
+          <Controller
+            control={form.control}
+            name="otp_code"
+            render={({ field }) => (
+              <InputOTP
+                maxLength={6}
+                value={field.value ?? ''}
+                onChange={(val) => field.onChange(val)}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+            )}
+          />
           {form.formState.errors.otp_code && (
             <span className="text-[10px] text-red-500 mt-1">{form.formState.errors.otp_code.message}</span>
           )}

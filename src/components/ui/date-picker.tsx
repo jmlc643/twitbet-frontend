@@ -14,21 +14,23 @@ export interface DatePickerProps {
   date?: Date
   setDate: (date?: Date) => void
   placeholder?: string
+  className?: string
 }
 
-export function DatePicker({ date, setDate, placeholder = "Seleccionar fecha" }: DatePickerProps) {
+export function DatePicker({ date, setDate, placeholder = "Seleccionar fecha", className }: DatePickerProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
           className={cn(
-            "w-[180px] justify-start text-left font-normal",
-            !date && "text-muted-foreground"
+            "w-full sm:w-[180px] justify-start text-left font-normal",
+            !date && "text-muted-foreground",
+            className
           )}
         >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP", { locale: es }) : <span>{placeholder}</span>}
+          <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+          <span className="truncate">{date ? format(date, "PPP", { locale: es }) : placeholder}</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">

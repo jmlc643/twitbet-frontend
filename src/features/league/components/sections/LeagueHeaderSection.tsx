@@ -80,7 +80,7 @@ export const LeagueHeaderSection = ({ league, isAdmin = true }: LeagueHeaderSect
       
       {participantMe && (
         <div className="relative z-10 mt-auto border-t border-neutral-100 dark:border-white/10 bg-neutral-50/50 dark:bg-black/20 p-4">
-          <div className="flex justify-end gap-3 w-full">
+          <div className="flex flex-wrap justify-end gap-2 sm:gap-3 w-full">
             <Button 
               variant="outline" 
               size="sm" 

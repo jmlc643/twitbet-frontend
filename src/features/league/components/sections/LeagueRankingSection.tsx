@@ -48,9 +48,9 @@ export const LeagueRankingSection = ({ league, currentUserId }: LeagueRankingSec
             <table className="w-full text-sm text-left">
               <thead className="text-xs text-neutral-500 dark:text-zinc-400 uppercase bg-neutral-50 dark:bg-zinc-900/80 border-b border-neutral-200 dark:border-white/5">
                 <tr>
-                  <th scope="col" className="px-6 py-4 font-semibold">Pos</th>
-                  <th scope="col" className="px-6 py-4 font-semibold">Jugador</th>
-                  <th scope="col" className="px-6 py-4 font-semibold text-right">Saldo</th>
+                  <th scope="col" className="px-3 sm:px-6 py-4 font-semibold">Pos</th>
+                  <th scope="col" className="px-3 sm:px-6 py-4 font-semibold">Jugador</th>
+                  <th scope="col" className="px-3 sm:px-6 py-4 font-semibold text-right">Saldo</th>
                 </tr>
               </thead>
               <tbody>
@@ -70,14 +70,14 @@ export const LeagueRankingSection = ({ league, currentUserId }: LeagueRankingSec
                         animationDelay: `${index * 50}ms`
                       }}
                     >
-                      <td className="px-6 py-4 font-medium">
+                      <td className="px-3 sm:px-6 py-4 font-medium">
                         {isUnranked ? (
                           <div className="flex items-center justify-center text-xs font-bold text-neutral-400">
                             -
                           </div>
                         ) : (
                           <div className={`
-                            flex items-center justify-center w-8 h-8 rounded-full font-bold
+                            flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full font-bold text-xs sm:text-sm
                             ${participant.position === 1 ? 'bg-yellow-500/20 text-yellow-500 ring-1 ring-yellow-500/50' : 
                               participant.position === 2 ? 'bg-zinc-300/20 text-zinc-300 ring-1 ring-zinc-300/50' : 
                               participant.position === 3 ? 'bg-amber-700/20 text-amber-600 ring-1 ring-amber-700/50' : 
@@ -87,29 +87,29 @@ export const LeagueRankingSection = ({ league, currentUserId }: LeagueRankingSec
                           </div>
                         )}
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center space-x-3">
+                      <td className="px-3 sm:px-6 py-4">
+                        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                           {participant.profile_picture ? (
                             <img 
                               src={participant.profile_picture} 
                               alt={participant.username} 
-                              className="w-8 h-8 rounded-full object-cover shadow-lg"
+                              className="w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover shadow-lg shrink-0"
                             />
                           ) : (
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-lg shrink-0">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-lg shrink-0 text-xs sm:text-sm">
                               {participant.username.charAt(0).toUpperCase()}
                             </div>
                           )}
-                          <div className="flex flex-col">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-neutral-800 dark:text-zinc-200 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
+                          <div className="flex flex-col min-w-0">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="font-medium text-neutral-800 dark:text-zinc-200 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors truncate">
                                 {participant.username}
                               </span>
                               {isFinalized && participant.position === 1 && (
-                                <Award className="w-4 h-4 text-yellow-500" />
+                                <Award className="w-4 h-4 text-yellow-500 shrink-0" />
                               )}
                             </div>
-                            <div className="flex items-center gap-2 mt-1">
+                            <div className="flex items-center flex-wrap gap-1.5 mt-1">
                               {participant.role === 'OWNER' && (
                                 <span className="px-1.5 py-0.5 text-[9px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded-sm uppercase tracking-wider">
                                   Dueño
@@ -134,7 +134,7 @@ export const LeagueRankingSection = ({ league, currentUserId }: LeagueRankingSec
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-3 sm:px-6 py-4 text-right">
                         {balanceHidden ? (
                           <span className="font-medium text-neutral-400 dark:text-zinc-500 italic">
                             Oculto
@@ -150,7 +150,7 @@ export const LeagueRankingSection = ({ league, currentUserId }: LeagueRankingSec
                 })}
                 {leaderboard.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="px-6 py-8 text-center text-neutral-500 dark:text-zinc-500">
+                    <td colSpan={3} className="px-3 sm:px-6 py-8 text-center text-neutral-500 dark:text-zinc-500">
                       No hay participantes en esta liga aún.
                     </td>
                   </tr>

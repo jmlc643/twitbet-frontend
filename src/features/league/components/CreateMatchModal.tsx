@@ -138,7 +138,7 @@ export const CreateMatchModal = ({ leagueId }: CreateMatchModalProps) => {
                   const timeVal = field.value && field.value.includes('T') ? field.value.split('T')[1].substring(0, 5) : '12:00';
                   
                   return (
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <div className="flex-1">
                         <DatePicker
                           date={dateVal}
@@ -153,8 +153,9 @@ export const CreateMatchModal = ({ leagueId }: CreateMatchModalProps) => {
                           placeholder="Fecha del partido"
                         />
                       </div>
-                      <div className="w-[120px]">
+                      <div className="w-full sm:w-[120px]">
                         <TimePicker
+                          className="w-full sm:w-[120px]"
                           value={timeVal}
                           onChange={(e) => {
                             if (dateVal) {

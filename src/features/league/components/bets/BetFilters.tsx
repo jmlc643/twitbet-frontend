@@ -61,8 +61,8 @@ export const BetFilters = ({
           Anuladas
         </Button>
       </div>
-      <div className="flex items-center space-x-2">
-        <div className="flex items-center space-x-2 bg-neutral-100 dark:bg-neutral-900 px-3 py-1.5 rounded-md border border-neutral-200 dark:border-neutral-800">
+      <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 bg-neutral-100 dark:bg-neutral-900 px-3 py-2 sm:py-1.5 rounded-md border border-neutral-200 dark:border-neutral-800 w-full sm:w-auto">
           <DatePicker 
             date={startDate ? new Date(startDate + "T00:00:00") : undefined}
             setDate={(d) => { 
@@ -75,8 +75,9 @@ export const BetFilters = ({
               setPage(1); 
             }}
             placeholder="Fecha inicio"
+            className="w-full sm:w-[180px]"
           />
-          <span className="text-neutral-400">-</span>
+          <span className="text-neutral-400 hidden sm:inline">-</span>
           <DatePicker 
             date={endDate ? new Date(endDate + "T00:00:00") : undefined}
             setDate={(d) => { 
@@ -89,6 +90,7 @@ export const BetFilters = ({
               setPage(1); 
             }}
             placeholder="Fecha fin"
+            className="w-full sm:w-[180px]"
           />
         </div>
       </div>

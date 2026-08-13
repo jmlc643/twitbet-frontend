@@ -71,8 +71,8 @@ export const BetTicket = ({ bet }: BetTicketProps) => {
         'bg-white border-neutral-200 dark:bg-neutral-950 dark:border-neutral-800'
       }`}
     >
-      <div className="flex-1 space-y-2">
-        <div className="flex items-center space-x-2">
+      <div className="flex-1 space-y-2 min-w-0">
+        <div className="flex items-center flex-wrap gap-2">
           <span className="text-xs font-semibold px-2 py-1 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400 rounded-md uppercase tracking-wider">
             {bet.market_name}
           </span>
@@ -80,7 +80,7 @@ export const BetTicket = ({ bet }: BetTicketProps) => {
             {formatDateTimeDDMMYYYY(bet.placed_at)}
           </span>
         </div>
-        <h4 className="font-bold text-neutral-900 dark:text-white">
+        <h4 className="font-bold text-neutral-900 dark:text-white break-words">
           {bet.match_title}
         </h4>
         <div className="text-sm text-neutral-600 dark:text-neutral-300">
@@ -88,7 +88,7 @@ export const BetTicket = ({ bet }: BetTicketProps) => {
         </div>
       </div>
       
-      <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 md:flex-col md:items-end md:justify-center">
         <div className="text-left md:text-right">
           <div className="text-xs text-neutral-500 dark:text-neutral-400 uppercase font-semibold">Monto Apostado</div>
           <div className="font-bold text-neutral-900 dark:text-white">S/. {bet.amount.toFixed(2)}</div>
@@ -97,7 +97,7 @@ export const BetTicket = ({ bet }: BetTicketProps) => {
           <div className="text-xs text-neutral-500 dark:text-neutral-400 uppercase font-semibold">Ganancia Potencial (x{bet.odds.toFixed(2)})</div>
           <div className="font-black text-emerald-600 dark:text-emerald-400">S/. {bet.potential_win.toFixed(2)}</div>
         </div>
-        <div className="flex items-center space-x-1 mt-2 md:mt-0">
+        <div className="flex items-center space-x-1 md:mt-0">
           <StatusIcon status={bet.status} />
           <StatusLabel status={bet.status} />
         </div>
@@ -106,7 +106,7 @@ export const BetTicket = ({ bet }: BetTicketProps) => {
           <Dialog open={isCashoutOpen} onOpenChange={setIsCashoutOpen}>
             <DialogTrigger asChild>
               <button 
-                className="mt-2 w-full md:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors"
+                className="w-full md:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors"
               >
                 Cashout S/. {bet.cashout_amount.toFixed(2)}
               </button>

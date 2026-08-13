@@ -5,6 +5,7 @@ import { ArrowLeft, Trophy, Calendar, Clock, Lock } from 'lucide-react';
 import { leagueApi } from '@/features/league/api/league.api';
 import { mapMatchStatus, getStatusColor } from '@/features/league/utils/statusMapper';
 import { mapMarketType, sortMarketsByType, MARKET_TYPE_ORDER } from '@/features/league/utils/marketTypeMapper';
+import { formatDateDDMMYYYY, formatTimeHHMM } from '@/lib/date';
 import { Button } from '@/components/ui/button';
 import { AnimatedOdds } from '@/components/ui/AnimatedOdds';
 import { PlaceBetModal } from '@/features/league/components/PlaceBetModal';
@@ -82,11 +83,11 @@ export const MatchDetailsPage = () => {
         <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-indigo-100">
           <span className="flex items-center">
             <Calendar className="w-4 h-4 mr-1" />
-            {date.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' })}
+            {formatDateDDMMYYYY(date)}
           </span>
           <span className="flex items-center">
             <Clock className="w-4 h-4 mr-1" />
-            {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            {formatTimeHHMM(date)}
           </span>
           <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${getStatusColor(match.status).replace('bg-', 'bg-white/20 text-white border-white/30 ')} border`}>
             {mapMatchStatus(match.status)}

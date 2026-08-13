@@ -4,6 +4,7 @@ import { Calendar, Clock, Trophy, ChevronRight, Lock } from 'lucide-react';
 import type { MatchResponse } from '@/features/league/types/league.types';
 import { mapMatchStatus, getStatusColor } from '@/features/league/utils/statusMapper';
 import { mapMarketType, sortMarketsByType } from '@/features/league/utils/marketTypeMapper';
+import { formatDateDDMMYYYY, formatTimeHHMM } from '@/lib/date';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AnimatedOdds } from '@/components/ui/AnimatedOdds';
@@ -53,11 +54,11 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
             <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
               <span className="flex items-center">
                 <Calendar className="w-3.5 h-3.5 mr-1" />
-                {date.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                {formatDateDDMMYYYY(date)}
               </span>
               <span className="flex items-center">
                 <Clock className="w-3.5 h-3.5 mr-1" />
-                {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {formatTimeHHMM(date)}
               </span>
               <span className={`px-2 py-0.5 rounded-full ${getStatusColor(match.status)}`}>
                 {mapMatchStatus(match.status)}

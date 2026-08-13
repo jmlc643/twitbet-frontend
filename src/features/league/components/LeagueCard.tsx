@@ -54,9 +54,9 @@ export const LeagueCard = ({ league }: LeagueCardProps) => {
             <div className="flex items-center gap-2 text-green-600 dark:text-green-500">
               <Coins className="w-4 h-4" />
               <span className="text-lg">
-                {new Intl.NumberFormat('es-CO', {
+                {new Intl.NumberFormat('es-PE', {
                   style: 'currency',
-                  currency: 'COP',
+                  currency: 'PEN',
                   minimumFractionDigits: 0
                 }).format(league.balance)}
               </span>

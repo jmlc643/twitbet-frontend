@@ -42,7 +42,11 @@ export const LeagueLiveConsolePage = () => {
     return <div className="text-center p-8">Liga no encontrada.</div>;
   }
 
-  if (user?.id !== league.owner_id) {
+  const currentParticipant = league.participants?.find(p => p.user_id === user?.id);
+  const isOwner = user?.id === league.owner_id;
+  const isAdmin = isOwner || currentParticipant?.role === 'ADMIN';
+
+  if (!isAdmin) {
     navigate(`/leagues/${slug}`);
     return null;
   }

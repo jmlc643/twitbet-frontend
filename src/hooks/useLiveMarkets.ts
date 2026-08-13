@@ -3,9 +3,22 @@ import { useQueryClient } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
 import confetti from 'canvas-confetti';
 import { toast } from 'sonner';
-import type { MarketResponse, WebSocketEvent } from '@/features/league/types/league.types';
+import type { MarketResponse, WebSocketEvent, WsMarketSnapshot } from '@/features/league/types/league.types';
 import { leagueApi } from '@/features/league/api/league.api';
 import { useAuthStore } from '@/store/useAuthStore';
+import { sortMarketsByType } from '@/features/league/utils/marketTypeMapper';
+
+const wsMarketSnapshotToMarketResponse = (snapshot: WsMarketSnapshot): MarketResponse => ({
+  id: snapshot.market_id,
+  league_id: snapshot.league_id,
+  match_id: snapshot.match_id,
+  name: snapshot.name,
+  type: snapshot.market_type,
+  status: snapshot.status,
+  options: snapshot.options,
+  created_at: '',
+  updated_at: '',
+});
 
 export const useLiveMarkets = () => {
   const queryClient = useQueryClient();
@@ -63,7 +76,8 @@ export const useLiveMarkets = () => {
                 
                 const newOptions = market.options.map(opt => {
                   const updatedOpt = data.options.find(o => o.id === opt.id);
-                  return updatedOpt ? { ...opt, current_odds: updatedOpt.current_odds } : opt;
+                  if (!updatedOpt) return opt;
+                  return { ...opt, current_odds: updatedOpt.current_odds, status: updatedOpt.status ?? opt.status };
                 });
                 
                 return { ...market, options: newOptions };
@@ -72,6 +86,32 @@ export const useLiveMarkets = () => {
 
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['match-markets'] }, updateMarketOdds);
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['league-markets'] }, updateMarketOdds);
+          }
+
+          if (data.type === 'MARKET_CREATED') {
+            const upsertMarket = (oldMarkets: MarketResponse[] | undefined) => {
+              const market = wsMarketSnapshotToMarketResponse(data);
+              if (!oldMarkets) return [market];
+              if (oldMarkets.some(m => m.id === market.id)) return oldMarkets;
+              return sortMarketsByType([...oldMarkets, market]);
+            };
+
+            if (data.match_id) {
+              queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['match-markets'] }, upsertMarket);
+            } else {
+              queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['league-markets'] }, upsertMarket);
+            }
+          }
+
+          if (data.type === 'MARKET_OPTIONS_UPDATED') {
+            const replaceMarket = (oldMarkets: MarketResponse[] | undefined) => {
+              if (!oldMarkets) return oldMarkets;
+              const market = wsMarketSnapshotToMarketResponse(data);
+              return oldMarkets.map(m => m.id === market.id ? market : m);
+            };
+
+            queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['match-markets'] }, replaceMarket);
+            queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['league-markets'] }, replaceMarket);
           }
           
           if (data.type === 'MARKET_STATUS_CHANGED' && (data.status === 'RESOLVED' || data.status === 'VOIDED')) {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isAxiosError } from 'axios';
 
@@ -127,20 +127,26 @@ export const ForgotPasswordForm = ({ onError, onClearError, onSuccess, onCancel 
         </div>
         <form onSubmit={verifyForm.handleSubmit(onVerifySubmit)} className="space-y-4">
           <div className="flex flex-col items-center justify-center space-y-2 mb-4">
-            <InputOTP
-              maxLength={6}
-              value={verifyForm.watch('otp_code')}
-              onChange={(val) => verifyForm.setValue('otp_code', val)}
-            >
-              <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
-              </InputOTPGroup>
-            </InputOTP>
+            <Controller
+              control={verifyForm.control}
+              name="otp_code"
+              render={({ field }) => (
+                <InputOTP
+                  maxLength={6}
+                  value={field.value ?? ''}
+                  onChange={(val) => field.onChange(val)}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              )}
+            />
             {verifyForm.formState.errors.otp_code && (
               <span className="text-[10px] text-red-500 mt-1">{verifyForm.formState.errors.otp_code.message}</span>
             )}

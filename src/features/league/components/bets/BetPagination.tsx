@@ -35,7 +35,7 @@ export const BetPagination = ({
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t border-neutral-200 dark:border-neutral-800">
-      <div className="flex items-center space-x-2 text-sm text-neutral-500">
+      <div className="flex items-center flex-wrap gap-x-2 gap-y-1 text-sm text-neutral-500 w-full sm:w-auto justify-center sm:justify-start">
         <span>Mostrando</span>
         <span className="font-semibold">{(page - 1) * limit + 1}</span>
         <span>a</span>
@@ -43,7 +43,7 @@ export const BetPagination = ({
         <span>de</span>
         <span className="font-semibold">{meta.total}</span>
         <span className="ml-2 hidden sm:inline-block">|</span>
-        <div className="flex items-center space-x-2 ml-2">
+        <div className="flex items-center gap-2 ml-2">
           <span>Filas por página:</span>
           <Select
             value={limit.toString()}

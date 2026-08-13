@@ -25,7 +25,9 @@ import type {
   GrantBonusRequest,
   CancelMarketRequest,
   UpdateLeagueStatusRequest,
-  GetLeaderboardResponse
+  GetLeaderboardResponse,
+  AddMarketOptionsRequest,
+  UpdateMarketOptionStatusRequest
 } from '../types/league.types';
 
 export const leagueApi = {
@@ -109,6 +111,14 @@ export const leagueApi = {
 
   updateMarketOdds: async (marketId: string, data: UpdateMarketOddsRequest): Promise<void> => {
     await api.patch(`/markets/${marketId}/odds`, data);
+  },
+
+  addMarketOptions: async (marketId: string, data: AddMarketOptionsRequest): Promise<void> => {
+    await api.post(`/markets/${marketId}/options`, data);
+  },
+
+  updateMarketOptionStatus: async (marketId: string, optionId: string, data: UpdateMarketOptionStatusRequest): Promise<void> => {
+    await api.patch(`/markets/${marketId}/options/${optionId}/status`, data);
   },
 
   assignAdmin: async (leagueId: string, participantId: string): Promise<void> => {

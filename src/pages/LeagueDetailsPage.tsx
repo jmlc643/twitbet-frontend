@@ -96,17 +96,17 @@ export const LeagueDetailsPage = () => {
 
       {/* Sections via Tabs */}
       <Tabs defaultValue="ranking" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-8 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 h-12">
-          <TabsTrigger value="ranking" className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-950 font-semibold text-neutral-500 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-8 min-h-12 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-1">
+          <TabsTrigger value="ranking" className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-950 font-semibold text-neutral-500 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 text-xs md:text-sm">
             Ranking
           </TabsTrigger>
-          <TabsTrigger value="matches" className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-950 font-semibold text-neutral-500 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400">
+          <TabsTrigger value="matches" className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-950 font-semibold text-neutral-500 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 text-xs md:text-sm">
             Partidos
           </TabsTrigger>
-          <TabsTrigger value="markets" className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-950 font-semibold text-neutral-500 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400">
+          <TabsTrigger value="markets" className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-950 font-semibold text-neutral-500 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 text-xs md:text-sm">
             Mercados Futuros
           </TabsTrigger>
-          <TabsTrigger value="bets" className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-950 font-semibold text-neutral-500 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400">
+          <TabsTrigger value="bets" className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-950 font-semibold text-neutral-500 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 text-xs md:text-sm">
             Mis Apuestas
           </TabsTrigger>
         </TabsList>

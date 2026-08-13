@@ -93,6 +93,10 @@ export interface GetMatchDetailsResponse extends MatchResponse {
   markets: MarketResponse[];
 }
 
+export type MarketType = 'RESULT' | 'TOTALS' | 'HANDICAP' | 'CORRECT_SCORE' | 'OTHER';
+
+export type MarketOptionStatus = 'ACTIVE' | 'BLOCKED';
+
 export interface MarketOptionRequest {
   name: string;
   odds: number;
@@ -100,7 +104,16 @@ export interface MarketOptionRequest {
 
 export interface CreateMarketRequest {
   name: string;
+  type?: MarketType;
   options: MarketOptionRequest[];
+}
+
+export interface AddMarketOptionsRequest {
+  options: MarketOptionRequest[];
+}
+
+export interface UpdateMarketOptionStatusRequest {
+  status: MarketOptionStatus;
 }
 
 export interface MarketOptionResponse {
@@ -109,6 +122,7 @@ export interface MarketOptionResponse {
   name: string;
   initial_odds: number;
   current_odds: number;
+  status?: MarketOptionStatus;
 }
 
 export interface MarketResponse {
@@ -116,6 +130,7 @@ export interface MarketResponse {
   league_id: string;
   match_id: string | null;
   name: string;
+  type?: MarketType;
   status: string;
   options: MarketOptionResponse[];
   created_at: string;
@@ -144,7 +159,7 @@ export interface PlaceBetRequest {
 }
 
 export interface ResolveMarketRequest {
-  winning_option_id: string;
+  winning_option_ids: string[];
 }
 
 export interface CancelMarketRequest {
@@ -171,19 +186,40 @@ export interface WsMarketResolved {
   type: 'MARKET_RESOLVED';
   market_id: string;
   league_id: string;
-  winning_option_id: string;
+  winning_option_ids: string[];
+}
+
+export interface WsMarketSnapshotOption {
+  id: string;
+  market_id: string;
+  name: string;
+  initial_odds: number;
+  current_odds: number;
+  status?: MarketOptionStatus;
+}
+
+export interface WsMarketSnapshot {
+  market_id: string;
+  league_id: string;
+  match_id: string | null;
+  name: string;
+  market_type: MarketType;
+  status: string;
+  options: WsMarketSnapshotOption[];
+}
+
+export interface WsMarketCreated extends WsMarketSnapshot {
+  type: 'MARKET_CREATED';
+}
+
+export interface WsMarketOptionsUpdated extends WsMarketSnapshot {
+  type: 'MARKET_OPTIONS_UPDATED';
 }
 
 export interface WsOddsUpdated {
   type: 'ODDS_UPDATED';
   market_id: string;
-  options: {
-    id: string;
-    market_id: string;
-    name: string;
-    initial_odds: number;
-    current_odds: number;
-  }[];
+  options: WsMarketSnapshotOption[];
 }
 
 export interface WsParticipantBalanceUpdated {
@@ -193,7 +229,7 @@ export interface WsParticipantBalanceUpdated {
   user_id: string;
 }
 
-export type WebSocketEvent = WsMarketStatusChanged | WsOddsUpdated | WsMatchStatusChanged | WsMarketResolved | WsParticipantBalanceUpdated;
+export type WebSocketEvent = WsMarketStatusChanged | WsOddsUpdated | WsMatchStatusChanged | WsMarketResolved | WsParticipantBalanceUpdated | WsMarketCreated | WsMarketOptionsUpdated;
 
 export interface ParticipantMeResponse {
   id: string;

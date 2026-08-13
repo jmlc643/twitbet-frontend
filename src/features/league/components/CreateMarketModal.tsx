@@ -1,14 +1,17 @@
 import { useState } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isAxiosError } from 'axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { leagueApi } from '@/features/league/api/league.api';
 import { createMarketSchema, type CreateMarketInput } from '@/features/league/schemas/league.schema';
+import { mapMarketType, MARKET_TYPE_ORDER } from '@/features/league/utils/marketTypeMapper';
+import type { MarketType } from '@/features/league/types/league.types';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TrendingUp, Plus, Trash2 } from 'lucide-react';
 import {
   Dialog,
@@ -34,6 +37,7 @@ export const CreateMarketModal = ({ leagueId, matchId }: CreateMarketModalProps)
     resolver: zodResolver(createMarketSchema),
     defaultValues: {
       name: '',
+      type: 'RESULT',
       options: [
         { name: '', odds: 1.5 },
         { name: '', odds: 2.5 }
@@ -132,6 +136,29 @@ export const CreateMarketModal = ({ leagueId, matchId }: CreateMarketModalProps)
               {form.formState.errors.name && (
                 <span className="text-[11px] font-medium text-red-500 block">{form.formState.errors.name.message}</span>
               )}
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Tipo de Mercado</label>
+              <Controller
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <Select
+                    value={field.value ?? 'OTHER'}
+                    onValueChange={(value) => field.onChange(value as MarketType)}
+                  >
+                    <SelectTrigger className="w-full bg-neutral-100 dark:bg-neutral-900 border-neutral-300 dark:border-neutral-800">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MARKET_TYPE_ORDER.map(type => (
+                        <SelectItem key={type} value={type}>{mapMarketType(type)}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
 
             <div className="space-y-3">

@@ -33,8 +33,11 @@ export const createMatchSchema = z.object({
 
 export type CreateMatchInput = z.infer<typeof createMatchSchema>;
 
+export const marketTypeSchema = z.enum(['RESULT', 'TOTALS', 'HANDICAP', 'CORRECT_SCORE', 'OTHER']).optional();
+
 export const createMarketSchema = z.object({
   name: z.string().min(1, 'El nombre del mercado es obligatorio'),
+  type: marketTypeSchema,
   options: z.array(
     z.object({
       name: z.string().min(1, 'El nombre de la opción es obligatorio'),

@@ -24,7 +24,7 @@ export const LeagueLiveConsolePage = () => {
 
   const { data: matchesData } = useQuery({
     queryKey: ['league-matches', leagueId],
-    queryFn: () => leagueApi.getMatches(leagueId!, 1, 100),
+    queryFn: () => leagueApi.getMatches(leagueId!, 1, 100, undefined, true),
     enabled: !!leagueId,
   });
 

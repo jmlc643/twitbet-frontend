@@ -88,9 +88,10 @@ export const leagueApi = {
     return response.data;
   },
 
-  getMatches: async (leagueId: string, page = 1, limit = 20, status?: string): Promise<GetMatchesResponse> => {
+  getMatches: async (leagueId: string, page = 1, limit = 20, status?: string, includeAllMarkets?: boolean): Promise<GetMatchesResponse> => {
     const params = new URLSearchParams({ page: String(page), limit: String(limit) });
     if (status) params.append('status', status);
+    if (includeAllMarkets) params.append('include_all_markets', 'true');
     const response = await api.get<GetMatchesResponse>(`/leagues/${leagueId}/matches?${params.toString()}`);
     return response.data;
   },

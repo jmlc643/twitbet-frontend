@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
 import confetti from 'canvas-confetti';
 import { toast } from 'sonner';
-import type { MarketResponse, WebSocketEvent, WsMarketSnapshot } from '@/features/league/types/league.types';
+import type { MarketResponse, WebSocketEvent, WsMarketSnapshot, GetMatchesResponse, MatchResponse } from '@/features/league/types/league.types';
 import { leagueApi } from '@/features/league/api/league.api';
 import { useAuthStore } from '@/store/useAuthStore';
 import { sortMarketsByType } from '@/features/league/utils/marketTypeMapper';
@@ -98,6 +98,23 @@ export const useLiveMarkets = () => {
 
             if (data.match_id) {
               queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['match-markets'] }, upsertMarket);
+              
+              queryClient.setQueriesData<GetMatchesResponse>({ queryKey: ['league-matches'] }, (oldData) => {
+                if (!oldData || !oldData.matches) return oldData;
+                const market = wsMarketSnapshotToMarketResponse(data);
+                
+                return {
+                  ...oldData,
+                  matches: oldData.matches.map((match: MatchResponse) => {
+                    if (match.id === data.match_id) {
+                      const currentMarkets = match.markets || [];
+                      if (currentMarkets.some((m: MarketResponse) => m.id === market.id)) return match;
+                      return { ...match, markets: sortMarketsByType([...currentMarkets, market]) };
+                    }
+                    return match;
+                  })
+                };
+              });
             } else {
               queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['league-markets'] }, upsertMarket);
             }

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { leagueApi } from '@/features/league/api/league.api';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Activity } from 'lucide-react';
@@ -8,10 +8,7 @@ import { mapMatchStatus } from '@/features/league/utils/statusMapper';
 
 export const MatchMarketsContainer = ({ match }: { match: MatchResponse }) => {
   const queryClient = useQueryClient();
-  const { data: markets = [], isLoading } = useQuery({
-    queryKey: ['match-markets', match.id],
-    queryFn: () => leagueApi.getMatchMarkets(match.id),
-  });
+  const markets = match.markets || [];
 
   const statusMutation = useMutation({
     mutationFn: (newStatus: 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'VOIDED') => 
@@ -22,7 +19,7 @@ export const MatchMarketsContainer = ({ match }: { match: MatchResponse }) => {
     }
   });
 
-  if (isLoading) return <div className="animate-pulse h-20 bg-neutral-100 dark:bg-neutral-800 rounded-xl" />;
+
   if (markets.length === 0) return null;
 
   return (

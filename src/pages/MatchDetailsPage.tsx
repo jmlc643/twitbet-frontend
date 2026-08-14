@@ -5,6 +5,7 @@ import { ArrowLeft, Trophy, Calendar, Clock, Lock } from 'lucide-react';
 import { leagueApi } from '@/features/league/api/league.api';
 import { mapMatchStatus, getStatusColor } from '@/features/league/utils/statusMapper';
 import { mapMarketType, sortMarketsByType, MARKET_TYPE_ORDER } from '@/features/league/utils/marketTypeMapper';
+import { sortMarketOptions, getGridClassForMarket } from '@/features/league/utils/marketOptionsSorter';
 import { formatDateDDMMYYYY, formatTimeHHMM } from '@/lib/date';
 import { Button } from '@/components/ui/button';
 import { AnimatedOdds } from '@/components/ui/AnimatedOdds';
@@ -126,8 +127,8 @@ export const MatchDetailsPage = () => {
                           )}
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                          {market.options.map(opt => (
+                        <div className={`grid gap-3 ${getGridClassForMarket(market.type, 'grid-cols-2 md:grid-cols-3')}`}>
+                          {sortMarketOptions(market.options, market.type).map(opt => (
                             <AnimatedOdds key={opt.id} odds={opt.current_odds}>
                               {(flash, currentOdds) => {
                                 const flashClass = flash === 'up' 

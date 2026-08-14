@@ -4,6 +4,7 @@ import { Calendar, Clock, Trophy, ChevronRight, Lock } from 'lucide-react';
 import type { MatchResponse } from '@/features/league/types/league.types';
 import { mapMatchStatus, getStatusColor } from '@/features/league/utils/statusMapper';
 import { mapMarketType, sortMarketsByType } from '@/features/league/utils/marketTypeMapper';
+import { sortMarketOptions, getGridClassForMarket } from '@/features/league/utils/marketOptionsSorter';
 import { formatDateDDMMYYYY, formatTimeHHMM } from '@/lib/date';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -89,8 +90,8 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
                     <Lock className="w-3.5 h-3.5 text-red-500 shrink-0" />
                   )}
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {market.options.map((opt) => (
+                <div className={`grid gap-2 ${getGridClassForMarket(market.type, 'grid-cols-2 md:grid-cols-3')}`}>
+                  {sortMarketOptions(market.options, market.type).map((opt) => (
                     <AnimatedOdds key={opt.id} odds={opt.current_odds}>
                       {(flash, currentOdds) => {
                         const flashClass = flash === 'up' 

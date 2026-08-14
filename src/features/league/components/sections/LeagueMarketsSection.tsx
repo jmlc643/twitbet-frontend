@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { AnimatedOdds } from '@/components/ui/AnimatedOdds';
 import { PlaceBetModal } from '../PlaceBetModal';
 import { mapMarketType, sortMarketsByType, MARKET_TYPE_ORDER } from '@/features/league/utils/marketTypeMapper';
+import { sortMarketOptions, getGridClassForMarket } from '@/features/league/utils/marketOptionsSorter';
 import type { MarketResponse } from '@/features/league/types/league.types';
 
 interface LeagueMarketsSectionProps {
@@ -126,8 +127,8 @@ const MarketCardView = ({ market, leagueId, setBetModal }: MarketCardViewProps) 
         </h3>
       </CardHeader>
       <CardContent className="p-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {market.options.map((opt) => (
+        <div className={`grid gap-3 ${getGridClassForMarket(market.type, 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4')}`}>
+          {sortMarketOptions(market.options, market.type).map((opt) => (
             <AnimatedOdds key={opt.id} odds={opt.current_odds}>
               {(flash, currentOdds) => {
                 const flashClass = flash === 'up' 

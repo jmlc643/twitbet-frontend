@@ -52,24 +52,24 @@ export const LeagueAdminSection = ({ league, onDelete, isDeleting }: LeagueAdmin
           <div className="w-full">
             <CreateMarketModal leagueId={league.league_id} />
           </div>
-          {isOwner && (
-            <div className="w-full">
-              <GrantBonusModal leagueId={league.league_id} />
-            </div>
-          )}
+          <div className="w-full">
+            <GrantBonusModal leagueId={league.league_id} />
+          </div>
           {isOwner && !isFinalized && (
             <div className="w-full">
               <ManageAdminsModal league={league} />
             </div>
           )}
-          {isOwner && !isFinalized && (
+          {!isFinalized && (
             <div className="w-full">
               <FinalizeLeagueModal leagueId={league.league_id} />
             </div>
           )}
-          <div className="w-full">
-            <DeleteLeagueModal onDelete={onDelete} isDeleting={isDeleting} />
-          </div>
+          {isOwner && (
+            <div className="w-full">
+              <DeleteLeagueModal onDelete={onDelete} isDeleting={isDeleting} />
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

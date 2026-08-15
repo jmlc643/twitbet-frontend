@@ -85,7 +85,7 @@ export const LeagueDetailsPage = () => {
         <LeagueHeaderSection league={league} isAdmin={isAdmin} />
 
         {/* Admin Panel */}
-        {isAdmin && (
+        {isAdmin && league.status !== 'FINALIZED' && (
           <LeagueAdminSection 
             league={league} 
             onDelete={handleDeleteLeague} 

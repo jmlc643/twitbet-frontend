@@ -26,17 +26,31 @@ export const LeagueCard = ({ league }: LeagueCardProps) => {
               {league.name}
             </h3>
             
-            <span 
-              className={`
-                inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider
-                ${isAdmin 
-                  ? 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/10 dark:text-amber-500 border dark:border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.2)]' 
-                  : 'bg-neutral-100 text-neutral-600 border border-neutral-200 dark:bg-white/5 dark:text-neutral-400 dark:border-white/10'}
-              `}
-            >
-              {isAdmin ? <Crown className="w-3.5 h-3.5" /> : <Shield className="w-3.5 h-3.5" />}
-              {league.role}
-            </span>
+            <div className="flex items-center gap-2">
+              {league.status && (
+                <span 
+                  className={`
+                    inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider
+                    ${league.status === 'FINALIZED' 
+                      ? 'bg-red-100 text-red-700 border-red-300 dark:bg-red-500/10 dark:text-red-500 border dark:border-red-500/20' 
+                      : 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-500 border dark:border-emerald-500/20'}
+                  `}
+                >
+                  {league.status === 'FINALIZED' ? 'Finalizada' : 'Activa'}
+                </span>
+              )}
+              <span 
+                className={`
+                  inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider
+                  ${isAdmin 
+                    ? 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/10 dark:text-amber-500 border dark:border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.2)]' 
+                    : 'bg-neutral-100 text-neutral-600 border border-neutral-200 dark:bg-white/5 dark:text-neutral-400 dark:border-white/10'}
+                `}
+              >
+                {isAdmin ? <Crown className="w-3.5 h-3.5" /> : <Shield className="w-3.5 h-3.5" />}
+                {league.role}
+              </span>
+            </div>
           </div>
         </div>
 

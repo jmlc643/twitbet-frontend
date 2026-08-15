@@ -32,6 +32,7 @@ export interface LeagueSummary {
   role: LeagueRole;
   participant_count: number;
   balance: number;
+  status?: 'ACTIVE' | 'FINALIZED';
 }
 
 export interface GetUserLeaguesResponse {

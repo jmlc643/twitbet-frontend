@@ -64,6 +64,7 @@ export const useLiveMarkets = () => {
               queryClient.invalidateQueries({ queryKey: ['match-markets'] });
               queryClient.invalidateQueries({ queryKey: ['league-markets'] });
               queryClient.invalidateQueries({ queryKey: ['match-details'] });
+              queryClient.invalidateQueries({ queryKey: ['user-combined-bets'] });
               toast.info('Un mercado ha sido anulado y tu dinero ha sido devuelto.');
             }
           }
@@ -86,6 +87,7 @@ export const useLiveMarkets = () => {
 
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['match-markets'] }, updateMarketOdds);
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['league-markets'] }, updateMarketOdds);
+            queryClient.invalidateQueries({ queryKey: ['user-combined-bets'] });
           }
 
           if (data.type === 'MARKET_CREATED') {
@@ -187,6 +189,7 @@ export const useLiveMarkets = () => {
                   
                   queryClient.invalidateQueries({ queryKey: ['participantBets'] });
                   queryClient.invalidateQueries({ queryKey: ['participantMe'] });
+                  queryClient.invalidateQueries({ queryKey: ['user-combined-bets'] });
                 }
               } catch {
                 toast.error("Ocurrió un error al verificar los resultados de tus apuestas.");

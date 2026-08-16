@@ -304,3 +304,53 @@ export interface GetLeaderboardResponse {
 export interface UpdateLeagueStatusRequest {
   status: 'FINALIZED';
 }
+
+export interface CombinedBetSelection {
+  market_id: string;
+  selection_id: string;
+}
+
+export interface PlaceCombinedBetRequest {
+  league_id: string;
+  stake: number;
+  use_bonus: boolean;
+  bonus_id?: string;
+  selections: CombinedBetSelection[];
+}
+
+export interface LegResponse {
+  id: string;
+  market_id: string;
+  market_name?: string;
+  match_id?: string;
+  match_title?: string;
+  selection_name: string;
+  odds_at_placement: number;
+  status: 'PENDING' | 'WON' | 'LOST' | 'VOIDED' | 'CASHOUT';
+  settled_at?: string;
+}
+
+export interface CombinedBetResponse {
+  id: string;
+  user_id: string;
+  league_id: string;
+  stake: number;
+  use_bonus: boolean;
+  total_odds: number;
+  potential_win: number;
+  status: 'PENDING' | 'ACCEPTED' | 'WON' | 'LOST' | 'CASHOUT';
+  cashout_value?: number;
+  cashout_expires_at?: string;
+  created_at: string;
+  settled_at?: string;
+  legs: LegResponse[];
+}
+
+export interface PaginatedCombinedBetResponse {
+  data: CombinedBetResponse[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+  };
+}

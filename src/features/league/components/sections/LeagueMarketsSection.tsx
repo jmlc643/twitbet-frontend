@@ -1,37 +1,19 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { leagueApi } from '@/features/league/api/league.api';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { TrendingUp, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AnimatedOdds } from '@/components/ui/AnimatedOdds';
-import { PlaceBetModal } from '../PlaceBetModal';
 import { mapMarketType, sortMarketsByType, MARKET_TYPE_ORDER } from '@/features/league/utils/marketTypeMapper';
 import { sortMarketOptions, getGridClassForMarket } from '@/features/league/utils/marketOptionsSorter';
 import type { MarketResponse } from '@/features/league/types/league.types';
+import { useBetSlipStore } from '@/store/useBetSlipStore';
 
 interface LeagueMarketsSectionProps {
   leagueId: string;
 }
 
 export const LeagueMarketsSection = ({ leagueId }: LeagueMarketsSectionProps) => {
-  const [betModal, setBetModal] = useState<{
-    isOpen: boolean;
-    leagueId: string;
-    marketId: string;
-    optionId: string;
-    optionName: string;
-    marketName: string;
-    currentOdds: number;
-  }>({
-    isOpen: false,
-    leagueId: '',
-    marketId: '',
-    optionId: '',
-    optionName: '',
-    marketName: '',
-    currentOdds: 0,
-  });
 
   const { data: markets, isLoading, isError } = useQuery({
     queryKey: ['league-markets', leagueId],
@@ -86,16 +68,12 @@ export const LeagueMarketsSection = ({ leagueId }: LeagueMarketsSectionProps) =>
 
           <div className="grid grid-cols-1 gap-6">
             {group.markets.map((market) => (
-              <MarketCardView key={market.id} market={market} leagueId={leagueId} setBetModal={setBetModal} />
+              <MarketCardView key={market.id} market={market} leagueId={leagueId} />
             ))}
           </div>
         </div>
       ))}
 
-      <PlaceBetModal
-        {...betModal}
-        onClose={() => setBetModal(prev => ({ ...prev, isOpen: false }))}
-      />
     </div>
   );
 };
@@ -103,18 +81,10 @@ export const LeagueMarketsSection = ({ leagueId }: LeagueMarketsSectionProps) =>
 interface MarketCardViewProps {
   market: MarketResponse;
   leagueId: string;
-  setBetModal: React.Dispatch<React.SetStateAction<{
-    isOpen: boolean;
-    leagueId: string;
-    marketId: string;
-    optionId: string;
-    optionName: string;
-    marketName: string;
-    currentOdds: number;
-  }>>;
 }
 
-const MarketCardView = ({ market, leagueId, setBetModal }: MarketCardViewProps) => {
+const MarketCardView = ({ market, leagueId }: MarketCardViewProps) => {
+  const { toggleSelection, selections } = useBetSlipStore();
   return (
     <Card className="border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-neutral-900/50 hover:border-emerald-400 dark:hover:border-emerald-700/80 transition-all duration-300">
       <CardHeader className="p-4 pb-3 border-b border-neutral-100 dark:border-neutral-800/50 bg-emerald-50/50 dark:bg-emerald-900/10">
@@ -147,8 +117,7 @@ const MarketCardView = ({ market, leagueId, setBetModal }: MarketCardViewProps) 
                     disabled={isBetDisabled}
                     onClick={() => {
                       if (!isBetDisabled) {
-                        setBetModal({
-                          isOpen: true,
+                        toggleSelection({
                           leagueId: leagueId,
                           marketId: market.id,
                           optionId: opt.id,
@@ -158,7 +127,11 @@ const MarketCardView = ({ market, leagueId, setBetModal }: MarketCardViewProps) 
                         });
                       }
                     }}
-                    className={`flex flex-col items-center justify-center py-3 h-auto hover:bg-emerald-50 hover:border-emerald-300 dark:hover:bg-emerald-950/30 dark:hover:border-emerald-800 transition-colors duration-500 disabled:opacity-50 disabled:cursor-not-allowed ${flashClass}`}
+                    className={`flex flex-col items-center justify-center py-3 h-auto hover:bg-emerald-50 hover:border-emerald-300 dark:hover:bg-emerald-950/30 dark:hover:border-emerald-800 transition-colors duration-500 disabled:opacity-50 disabled:cursor-not-allowed ${
+                      selections.some(s => s.optionId === opt.id)
+                        ? 'ring-2 ring-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 border-emerald-500'
+                        : flashClass
+                    }`}
                   >
                     <span className={`text-xs font-medium mb-1 truncate w-full text-center ${labelClass}`}>
                       {opt.status === 'BLOCKED' && <Lock className="w-3 h-3 mr-1 inline-block text-red-500" />}

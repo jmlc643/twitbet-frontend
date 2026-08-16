@@ -5,6 +5,7 @@ import { useThemeStore } from '@/store/useThemeStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Navbar } from '@/components/layout/Navbar';
 import { AppRouter } from '@/routes/AppRouter';
+import { BetSlipDrawer } from '@/features/league/components/BetSlipDrawer';
 
 import { Toaster } from 'sonner';
 
@@ -28,6 +29,7 @@ export default function App() {
             <AppRouter />
           </main>
           <Toaster richColors position="top-right" />
+          <BetSlipDrawer />
         </div>
       </BrowserRouter>
     </QueryClientProvider>

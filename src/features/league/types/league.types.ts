@@ -321,10 +321,12 @@ export interface PlaceCombinedBetRequest {
 export interface LegResponse {
   id: string;
   market_id: string;
+  market_name?: string;
   match_id?: string;
+  match_title?: string;
   selection_name: string;
   odds_at_placement: number;
-  status: 'PENDING' | 'WON' | 'LOST' | 'VOIDED';
+  status: 'PENDING' | 'WON' | 'LOST' | 'VOIDED' | 'CASHOUT';
   settled_at?: string;
 }
 
@@ -342,4 +344,13 @@ export interface CombinedBetResponse {
   created_at: string;
   settled_at?: string;
   legs: LegResponse[];
+}
+
+export interface PaginatedCombinedBetResponse {
+  data: CombinedBetResponse[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+  };
 }

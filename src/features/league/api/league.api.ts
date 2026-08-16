@@ -29,7 +29,8 @@ import type {
   AddMarketOptionsRequest,
   UpdateMarketOptionStatusRequest,
   PlaceCombinedBetRequest,
-  CombinedBetResponse
+  CombinedBetResponse,
+  PaginatedCombinedBetResponse
 } from '../types/league.types';
 
 export const leagueApi = {
@@ -191,8 +192,24 @@ export const leagueApi = {
     await api.post('/combined-bets', data);
   },
 
-  getUserCombinedBets: async (leagueId: string): Promise<CombinedBetResponse[]> => {
-    const response = await api.get<CombinedBetResponse[]>(`/combined-bets?league_id=${leagueId}`);
+  getUserCombinedBets: async (
+    leagueId: string,
+    status?: string,
+    page = 1,
+    limit = 10,
+    startDate?: string,
+    endDate?: string
+  ): Promise<PaginatedCombinedBetResponse> => {
+    const params = new URLSearchParams({ 
+      league_id: leagueId,
+      page: String(page), 
+      limit: String(limit) 
+    });
+    if (status) params.append('status', status);
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    
+    const response = await api.get<PaginatedCombinedBetResponse>(`/combined-bets?${params.toString()}`);
     return response.data;
   },
 

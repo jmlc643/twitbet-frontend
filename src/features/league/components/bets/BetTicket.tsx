@@ -94,8 +94,12 @@ export const BetTicket = ({ bet }: BetTicketProps) => {
           <div className="font-bold text-neutral-900 dark:text-white">S/. {bet.amount.toFixed(2)}</div>
         </div>
         <div className="text-left md:text-right">
-          <div className="text-xs text-neutral-500 dark:text-neutral-400 uppercase font-semibold">Ganancia Potencial (x{bet.odds.toFixed(2)})</div>
-          <div className="font-black text-emerald-600 dark:text-emerald-400">S/. {bet.potential_win.toFixed(2)}</div>
+          <div className="text-xs text-neutral-500 dark:text-neutral-400 uppercase font-semibold">
+            {bet.status === 'CASHOUT' ? 'Cashout Retirado' : `Ganancia Potencial (x${bet.odds.toFixed(2)})`}
+          </div>
+          <div className={`font-black ${bet.status === 'CASHOUT' ? 'text-blue-600 dark:text-blue-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+            S/. {bet.status === 'CASHOUT' ? (bet.cashout_amount || 0).toFixed(2) : bet.potential_win.toFixed(2)}
+          </div>
         </div>
         <div className="flex items-center space-x-1 md:mt-0">
           <StatusIcon status={bet.status} />

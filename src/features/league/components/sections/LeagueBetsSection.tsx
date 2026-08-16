@@ -48,12 +48,20 @@ export const LeagueBetsSection = ({ leagueId }: LeagueBetsSectionProps) => {
   const meta = betsResponse?.meta;
 
   const { data: combinedBetsResponse, isLoading: isLoadingCombined } = useQuery({
-    queryKey: ['user-combined-bets', leagueId],
-    queryFn: () => leagueApi.getUserCombinedBets(leagueId),
+    queryKey: ['user-combined-bets', leagueId, filter, page, limit, startDate, endDate],
+    queryFn: () => leagueApi.getUserCombinedBets(
+      leagueId,
+      filter === 'ALL' ? undefined : filter,
+      page,
+      limit,
+      formatRFC3339(startDate),
+      formatRFC3339(endDate, true)
+    ),
     enabled: activeTab === 'combined',
   });
 
-  const combinedBets = combinedBetsResponse || [];
+  const combinedBets = combinedBetsResponse?.data || [];
+  const combinedMeta = combinedBetsResponse?.meta;
 
   return (
     <Card className="border border-neutral-800 bg-[#0A0A0A] shadow-lg text-white">
@@ -80,17 +88,17 @@ export const LeagueBetsSection = ({ leagueId }: LeagueBetsSectionProps) => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="single" className="space-y-6 mt-0">
-            <BetFilters 
-              filter={filter}
-              setFilter={setFilter}
-              startDate={startDate}
-              setStartDate={setStartDate}
-              endDate={endDate}
-              setEndDate={setEndDate}
-              setPage={setPage}
-            />
+          <BetFilters 
+            filter={filter}
+            setFilter={setFilter}
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endDate={endDate}
+            setEndDate={setEndDate}
+            setPage={setPage}
+          />
 
+          <TabsContent value="single" className="space-y-6 mt-0">
             {isLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map(i => (
@@ -121,7 +129,7 @@ export const LeagueBetsSection = ({ leagueId }: LeagueBetsSectionProps) => {
             )}
           </TabsContent>
 
-          <TabsContent value="combined" className="space-y-4 mt-0">
+          <TabsContent value="combined" className="space-y-6 mt-0">
             {isLoadingCombined ? (
               <div className="space-y-4">
                 {[1, 2, 3].map(i => (
@@ -138,6 +146,17 @@ export const LeagueBetsSection = ({ leagueId }: LeagueBetsSectionProps) => {
                   <CombinedBetTicket key={bet.id} bet={bet} />
                 ))}
               </div>
+            )}
+
+            {combinedMeta && combinedMeta.total > 0 && (
+              <BetPagination 
+                meta={combinedMeta}
+                page={page}
+                setPage={setPage}
+                limit={limit}
+                setLimit={setLimit}
+                isLoading={isLoadingCombined}
+              />
             )}
           </TabsContent>
         </Tabs>

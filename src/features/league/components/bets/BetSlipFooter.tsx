@@ -103,7 +103,7 @@ export const BetSlipFooter = ({
           disabled={isPending || !amount} 
           className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold h-10"
         >
-          {isPending ? 'Procesando...' : `Realizar apuesta PEN ${amount || '0.00'}`}
+          {isPending ? 'Procesando...' : `Realizar apuesta S/. ${amount || '0.00'}`}
         </Button>
       </div>
     </div>

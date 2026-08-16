@@ -10,8 +10,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AnimatedOdds } from '@/components/ui/AnimatedOdds';
 import { CreateMarketModal } from './CreateMarketModal';
-import { PlaceBetModal } from './PlaceBetModal';
-import { useState } from 'react';
+import { useBetSlipStore } from '@/store/useBetSlipStore';
 
 interface MatchCardProps {
   match: MatchResponse;
@@ -21,23 +20,7 @@ interface MatchCardProps {
 export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
   const navigate = useNavigate();
 
-  const [betModal, setBetModal] = useState<{
-    isOpen: boolean;
-    leagueId: string;
-    marketId: string;
-    optionId: string;
-    optionName: string;
-    marketName: string;
-    currentOdds: number;
-  }>({
-    isOpen: false,
-    leagueId: '',
-    marketId: '',
-    optionId: '',
-    optionName: '',
-    marketName: '',
-    currentOdds: 0,
-  });
+  const { toggleSelection, selections } = useBetSlipStore();
 
   const markets = sortMarketsByType(match.markets || []);
   const previewMarkets = markets.slice(0, 3);
@@ -111,18 +94,24 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
                             disabled={isBetDisabled}
                             onClick={() => {
                               if (!isBetDisabled) {
-                                setBetModal({
-                                  isOpen: true,
+                                toggleSelection({
                                   leagueId: match.league_id,
                                   marketId: market.id,
                                   optionId: opt.id,
                                   optionName: opt.name,
                                   marketName: market.name,
-                                  currentOdds: currentOdds
+                                  currentOdds: currentOdds,
+                                  matchTitle: match.title,
+                                  matchTime: new Date(match.start_time).toISOString(),
+                                  matchStatus: match.status
                                 });
                               }
                             }}
-                            className={`flex flex-col items-center justify-center py-2 h-auto hover:bg-indigo-50 hover:border-indigo-200 dark:hover:bg-indigo-950/30 dark:hover:border-indigo-800 transition-colors duration-500 disabled:opacity-50 disabled:cursor-not-allowed ${flashClass}`}
+                            className={`flex flex-col items-center justify-center py-2 h-auto hover:bg-indigo-50 hover:border-indigo-200 dark:hover:bg-indigo-950/30 dark:hover:border-indigo-800 transition-colors duration-500 disabled:opacity-50 disabled:cursor-not-allowed ${
+                              selections.some(s => s.optionId === opt.id)
+                                ? 'ring-2 ring-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500'
+                                : flashClass
+                            }`}
                           >
                             <span className={`text-[10px] font-medium mb-1 truncate w-full text-center ${labelClass}`}>
                               {opt.status === 'BLOCKED' && <Lock className="w-3 h-3 mr-1 inline-block text-red-500" />}
@@ -157,10 +146,6 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
           </Button>
         </div>
         
-        <PlaceBetModal
-          {...betModal}
-          onClose={() => setBetModal(prev => ({ ...prev, isOpen: false }))}
-        />
       </CardContent>
     </Card>
   );

@@ -9,29 +9,12 @@ import { sortMarketOptions, getGridClassForMarket } from '@/features/league/util
 import { formatDateDDMMYYYY, formatTimeHHMM } from '@/lib/date';
 import { Button } from '@/components/ui/button';
 import { AnimatedOdds } from '@/components/ui/AnimatedOdds';
-import { PlaceBetModal } from '@/features/league/components/PlaceBetModal';
-import { useState } from 'react';
+import { useBetSlipStore } from '@/store/useBetSlipStore';
 
 export const MatchDetailsPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const [betModal, setBetModal] = useState<{
-    isOpen: boolean;
-    leagueId: string;
-    marketId: string;
-    optionId: string;
-    optionName: string;
-    marketName: string;
-    currentOdds: number;
-  }>({
-    isOpen: false,
-    leagueId: '',
-    marketId: '',
-    optionId: '',
-    optionName: '',
-    marketName: '',
-    currentOdds: 0,
-  });
+  const { toggleSelection, selections } = useBetSlipStore();
 
   const { data: match, isLoading, isError } = useQuery({
     queryKey: ['match-details', slug],
@@ -144,17 +127,23 @@ export const MatchDetailsPage = () => {
 
                                 return (
                                   <div 
-                                    className={`flex flex-col items-center justify-center py-3 px-2 border rounded-xl transition-colors duration-500 ${flashClass} ${isBetDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:shadow-md'}`}
+                                    className={`flex flex-col items-center justify-center py-3 px-2 border rounded-xl transition-colors duration-500 ${isBetDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:shadow-md'} ${
+                                      selections.some(s => s.optionId === opt.id)
+                                        ? 'ring-2 ring-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500'
+                                        : flashClass
+                                    }`}
                                     onClick={() => {
                                       if (!isBetDisabled) {
-                                        setBetModal({
-                                          isOpen: true,
+                                        toggleSelection({
                                           leagueId: match.league_id,
                                           marketId: market.id,
                                           optionId: opt.id,
                                           optionName: opt.name,
                                           marketName: market.name,
-                                          currentOdds: currentOdds
+                                          currentOdds: currentOdds,
+                                          matchTitle: match.title,
+                                          matchTime: date.toISOString(),
+                                          matchStatus: match.status
                                         });
                                       }
                                     }}
@@ -185,10 +174,6 @@ export const MatchDetailsPage = () => {
           )}
         </div>
 
-        <PlaceBetModal
-          {...betModal}
-          onClose={() => setBetModal(prev => ({ ...prev, isOpen: false }))}
-        />
       </div>
     </div>
   );

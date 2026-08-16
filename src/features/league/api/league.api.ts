@@ -27,7 +27,9 @@ import type {
   UpdateLeagueStatusRequest,
   GetLeaderboardResponse,
   AddMarketOptionsRequest,
-  UpdateMarketOptionStatusRequest
+  UpdateMarketOptionStatusRequest,
+  PlaceCombinedBetRequest,
+  CombinedBetResponse
 } from '../types/league.types';
 
 export const leagueApi = {
@@ -182,6 +184,25 @@ export const leagueApi = {
 
   getMyBonuses: async (leagueId: string): Promise<BonusResponse[]> => {
     const response = await api.get<BonusResponse[]>(`/leagues/${leagueId}/bonuses/me`);
+    return response.data;
+  },
+
+  placeCombinedBet: async (data: PlaceCombinedBetRequest): Promise<void> => {
+    await api.post('/combined-bets', data);
+  },
+
+  getUserCombinedBets: async (leagueId: string): Promise<CombinedBetResponse[]> => {
+    const response = await api.get<CombinedBetResponse[]>(`/combined-bets?league_id=${leagueId}`);
+    return response.data;
+  },
+
+  getCombinedBetDetails: async (betId: string): Promise<CombinedBetResponse> => {
+    const response = await api.get<CombinedBetResponse>(`/combined-bets/${betId}`);
+    return response.data;
+  },
+
+  cashoutCombinedBet: async (betId: string): Promise<{ message: string; cashout_value: number }> => {
+    const response = await api.post<{ message: string; cashout_value: number }>(`/combined-bets/${betId}/cashout`);
     return response.data;
   }
 };

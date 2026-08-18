@@ -40,6 +40,7 @@ export const BetSlipDrawer = () => {
         market_id: selections[0].marketId,
         market_option_id: selections[0].optionId,
         amount: betAmount,
+        accepted_odds: selections[0].currentOdds,
         ...(selectedBonusId ? { bonus_id: selectedBonusId } : {})
       }),
     onSuccess: handleSuccess,
@@ -55,7 +56,8 @@ export const BetSlipDrawer = () => {
         ...(selectedBonusId ? { bonus_id: selectedBonusId } : {}),
         selections: selections.map(s => ({
           market_id: s.marketId,
-          selection_id: s.optionId
+          selection_id: s.optionId,
+          accepted_odds: s.currentOdds
         }))
       }),
     onSuccess: handleSuccess,
@@ -76,8 +78,15 @@ export const BetSlipDrawer = () => {
   }
 
   function handleError(err: unknown) {
-    const error = err as { response?: { data?: { error?: string } } };
-    setError(error.response?.data?.error || 'Error al realizar la apuesta');
+    const error = err as { response?: { status?: number; data?: { error?: string } } };
+    if (error.response?.status === 409) {
+      setError('Las cuotas han cambiado. Por favor, vacía tu boleto y vuelve a seleccionar las opciones actualizadas.');
+      queryClient.invalidateQueries({ queryKey: ['league', leagueId] });
+      queryClient.invalidateQueries({ queryKey: ['match-markets'] });
+      queryClient.invalidateQueries({ queryKey: ['league-markets'] });
+    } else {
+      setError(error.response?.data?.error || 'Error al realizar la apuesta');
+    }
   }
 
   const handleConfirm = () => {

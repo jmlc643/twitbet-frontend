@@ -44,7 +44,21 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
   const oddsMutation = useMutation({
     mutationFn: (newOdds: Record<string, number>) =>
       leagueApi.updateMarketOdds(market.id, { options_odds: newOdds }),
-    onSuccess: invalidateMarket
+    onSuccess: (data) => {
+      if (data?.odds) {
+        setOdds(data.odds);
+      }
+      invalidateMarket();
+      toast.success(data?.message || 'Cuotas actualizadas exitosamente');
+    },
+    onError: (err: unknown) => {
+      const error = err as { response?: { status?: number; data?: { error?: string; hint?: string } } };
+      if (error.response?.status === 422) {
+        toast.error(`Error: ${error.response.data.error}${error.response.data.hint ? ` - ${error.response.data.hint}` : ''}`);
+      } else {
+        toast.error(error.response?.data?.error || 'Error al actualizar las cuotas.');
+      }
+    }
   });
 
   const optionStatusMutation = useMutation({
@@ -124,12 +138,20 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
   };
 
   const isSuspended = market.status === 'SUSPENDED';
+  const isAutoCooldown = isSuspended && market.suspend_reason === 'AUTO_COOLDOWN';
   const isResolved = market.status === 'RESOLVED';
   const isVoided = market.status === 'VOIDED' || market.status === 'CANCELLED';
   const isFinished = isResolved || isVoided;
 
   return (
     <div className={`p-4 rounded-xl border ${isSuspended ? 'border-red-500/50 bg-red-50/50 dark:bg-red-950/20' : isFinished ? 'border-neutral-200 bg-neutral-100 dark:bg-neutral-800 dark:border-neutral-700 opacity-75' : 'border-indigo-200 dark:border-indigo-800/50 bg-white/50 dark:bg-neutral-900/50'}`}>
+      
+      {isAutoCooldown && (
+        <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-200 text-sm font-medium rounded-lg border border-amber-200 dark:border-amber-800/50 flex items-center">
+          <span className="animate-pulse mr-2 h-2 w-2 rounded-full bg-amber-500"></span>
+          Mercado en enfriamiento automático por cambio brusco de cuotas.
+        </div>
+      )}
       
       <MarketHeader
         market={market}

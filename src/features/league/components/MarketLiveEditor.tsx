@@ -53,10 +53,16 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
     },
     onError: (err: unknown) => {
       const error = err as { response?: { status?: number; data?: { error?: string; hint?: string } } };
+      const errorData = error.response?.data;
+      
       if (error.response?.status === 422) {
-        toast.error(`Error: ${error.response.data.error}${error.response.data.hint ? ` - ${error.response.data.hint}` : ''}`);
+        if (errorData?.hint) {
+          toast.error(errorData.hint);
+        } else {
+          toast.error(errorData?.error ? `Error: ${errorData.error}` : 'Error de validación al actualizar cuotas.');
+        }
       } else {
-        toast.error(error.response?.data?.error || 'Error al actualizar las cuotas.');
+        toast.error(errorData?.error || 'Error al actualizar las cuotas.');
       }
     }
   });
@@ -80,8 +86,9 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
       toast.success('Opciones agregadas exitosamente.');
     },
     onError: (err: unknown) => {
-      const error = err as { response?: { data?: { error?: string } } };
-      toast.error(error.response?.data?.error || 'Error al agregar las opciones.');
+      const error = err as { response?: { data?: { error?: string; hint?: string } } };
+      const errorData = error.response?.data;
+      toast.error(errorData?.hint || errorData?.error || 'Error al agregar las opciones.');
     }
   });
 

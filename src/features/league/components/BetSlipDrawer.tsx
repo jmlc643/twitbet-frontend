@@ -9,7 +9,7 @@ import { BetSlipItem } from './bets/BetSlipItem';
 import { BetSlipFooter } from './bets/BetSlipFooter';
 
 export const BetSlipDrawer = () => {
-  const { selections, isOpen, removeSelection, clearSlip, setIsOpen } = useBetSlipStore();
+  const { selections, isOpen, removeSelection, clearSlip, setIsOpen, updateOddsFromDrift } = useBetSlipStore();
   const [amount, setAmount] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -78,9 +78,14 @@ export const BetSlipDrawer = () => {
   }
 
   function handleError(err: unknown) {
-    const error = err as { response?: { status?: number; data?: { error?: string } } };
+    const error = err as { response?: { status?: number; data?: { error?: string; updated_odds?: Record<string, number> } } };
     if (error.response?.status === 409) {
-      setError('Las cuotas han cambiado. Por favor, vacía tu boleto y vuelve a seleccionar las opciones actualizadas.');
+      if (error.response.data?.updated_odds) {
+        updateOddsFromDrift(error.response.data.updated_odds);
+        setError('Algunas cuotas han cambiado. Hemos actualizado tu boleto con los nuevos valores. Revisa el nuevo pago potencial y confirma si deseas apostar.');
+      } else {
+        setError('Las cuotas han cambiado. Por favor, vacía tu boleto y vuelve a seleccionar las opciones actualizadas.');
+      }
       queryClient.invalidateQueries({ queryKey: ['league', leagueId] });
       queryClient.invalidateQueries({ queryKey: ['match-markets'] });
       queryClient.invalidateQueries({ queryKey: ['league-markets'] });

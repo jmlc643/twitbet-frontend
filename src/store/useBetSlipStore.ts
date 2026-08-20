@@ -20,6 +20,7 @@ interface BetSlipState {
   toggleSelection: (selection: BetSelection) => void;
   clearSlip: () => void;
   setIsOpen: (isOpen: boolean) => void;
+  updateOddsFromDrift: (updatedOddsMap: Record<string, number>) => void;
 }
 
 export const useBetSlipStore = create<BetSlipState>((set, get) => ({
@@ -65,4 +66,16 @@ export const useBetSlipStore = create<BetSlipState>((set, get) => ({
   clearSlip: () => set({ selections: [], isOpen: false }),
   
   setIsOpen: (isOpen) => set({ isOpen }),
+  
+  updateOddsFromDrift: (updatedOddsMap) => set((state) => ({
+    selections: state.selections.map(sel => {
+      if (updatedOddsMap[sel.optionId] !== undefined) {
+        return { 
+          ...sel, 
+          currentOdds: updatedOddsMap[sel.optionId]
+        };
+      }
+      return sel;
+    })
+  })),
 }));

@@ -34,6 +34,7 @@ export const PlaceBetModal = ({
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [selectedBonusId, setSelectedBonusId] = useState<string | null>(null);
+  const [driftError, setDriftError] = useState<{ current_odds: number } | null>(null);
 
   const { data: bonuses } = useQuery({
     queryKey: ['league-bonuses', leagueId],
@@ -50,6 +51,7 @@ export const PlaceBetModal = ({
         market_id: marketId,
         market_option_id: optionId,
         amount: betAmount,
+        accepted_odds: driftError?.current_odds ?? currentOdds,
         ...(selectedBonusId ? { bonus_id: selectedBonusId } : {})
       }),
     onSuccess: () => {
@@ -60,13 +62,19 @@ export const PlaceBetModal = ({
         onClose();
         setAmount('');
         setError(null);
+        setDriftError(null);
         setIsSuccess(false);
         setSelectedBonusId(null);
       }, 2000);
     },
     onError: (err: unknown) => {
-      const error = err as { response?: { data?: { error?: string } } };
-      setError(error.response?.data?.error || 'Error al realizar la apuesta');
+      const error = err as { response?: { status?: number; data?: { error?: string; current_odds?: number } } };
+      if (error.response?.status === 409 && error.response?.data?.current_odds) {
+        setDriftError({ current_odds: error.response.data.current_odds });
+        setError(`Las cuotas para esta opción han cambiado de ${currentOdds} a ${error.response.data.current_odds}. ¿Deseas aceptar los cambios y apostar?`);
+      } else {
+        setError(error.response?.data?.error || 'Error al realizar la apuesta');
+      }
     }
   });
 
@@ -76,19 +84,19 @@ export const PlaceBetModal = ({
       setError('Por favor, ingresa un monto válido.');
       return;
     }
-    setError(null);
     betMutation.mutate(numAmount);
   };
 
   const handleClose = () => {
     setAmount('');
     setError(null);
+    setDriftError(null);
     setIsSuccess(false);
     setSelectedBonusId(null);
     onClose();
   };
 
-  const potentialWin = parseFloat(amount || '0') * currentOdds;
+  const potentialWin = parseFloat(amount || '0') * (driftError?.current_odds ?? currentOdds);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -114,7 +122,10 @@ export const PlaceBetModal = ({
           </div>
           <div className="flex justify-between items-center text-sm">
             <span className="text-neutral-500 dark:text-neutral-400">Cuota:</span>
-            <span className="font-bold text-indigo-600 dark:text-indigo-400">{currentOdds.toFixed(2)}</span>
+            <span className={`font-bold ${driftError ? 'text-amber-600 dark:text-amber-400' : 'text-indigo-600 dark:text-indigo-400'}`}>
+              {(driftError?.current_odds ?? currentOdds).toFixed(2)}
+              {driftError && <span className="ml-2 text-xs line-through text-neutral-400">{currentOdds.toFixed(2)}</span>}
+            </span>
           </div>
         </div>
 
@@ -146,7 +157,7 @@ export const PlaceBetModal = ({
           </div>
 
           {error && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 rounded-lg border border-red-200 dark:border-red-900/50">
+            <div className={`p-3 text-sm rounded-lg border ${driftError ? 'text-amber-700 bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-900/50' : 'text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 border-red-200 dark:border-red-900/50'}`}>
               {error}
             </div>
           )}
@@ -166,7 +177,7 @@ export const PlaceBetModal = ({
               Cancelar
             </Button>
             <Button onClick={handleConfirm} disabled={betMutation.isPending} className="bg-indigo-600 hover:bg-indigo-700 text-white">
-              {betMutation.isPending ? 'Procesando...' : 'Confirmar Apuesta'}
+              {betMutation.isPending ? 'Procesando...' : (driftError ? 'Aceptar y Apostar' : 'Confirmar Apuesta')}
             </Button>
           </DialogFooter>
         </>

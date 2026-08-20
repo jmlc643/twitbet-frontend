@@ -113,8 +113,9 @@ export const leagueApi = {
     await api.patch(`/markets/${marketId}/status`, data);
   },
 
-  updateMarketOdds: async (marketId: string, data: UpdateMarketOddsRequest): Promise<void> => {
-    await api.patch(`/markets/${marketId}/odds`, data);
+  updateMarketOdds: async (marketId: string, data: UpdateMarketOddsRequest): Promise<{ message: string; odds: Record<string, number> }> => {
+    const response = await api.patch<{ message: string; odds: Record<string, number> }>(`/markets/${marketId}/odds`, data);
+    return response.data;
   },
 
   addMarketOptions: async (marketId: string, data: AddMarketOptionsRequest): Promise<void> => {

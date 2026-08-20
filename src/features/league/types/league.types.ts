@@ -133,6 +133,7 @@ export interface MarketResponse {
   name: string;
   type?: MarketType;
   status: string;
+  suspend_reason?: string;
   options: MarketOptionResponse[];
   created_at: string;
   updated_at: string;
@@ -156,6 +157,7 @@ export interface PlaceBetRequest {
   market_id: string;
   market_option_id: string;
   amount: number;
+  accepted_odds: number;
   bonus_id?: string;
 }
 
@@ -175,6 +177,7 @@ export interface WsMarketStatusChanged {
   type: 'MARKET_STATUS_CHANGED';
   market_id: string;
   status: 'ACTIVE' | 'SUSPENDED' | 'RESOLVED' | 'VOIDED' | 'CANCELLED';
+  suspend_reason?: string;
 }
 
 export interface WsMatchStatusChanged {
@@ -308,6 +311,7 @@ export interface UpdateLeagueStatusRequest {
 export interface CombinedBetSelection {
   market_id: string;
   selection_id: string;
+  accepted_odds: number;
 }
 
 export interface PlaceCombinedBetRequest {

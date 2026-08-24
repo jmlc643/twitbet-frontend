@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { AnimatedOdds } from '@/components/ui/AnimatedOdds';
 import { CreateMarketModal } from './CreateMarketModal';
 import { useBetSlipStore } from '@/store/useBetSlipStore';
+import { useActiveBetBlocks } from '@/hooks/useActiveBetBlocks';
+import { toast } from 'sonner';
 
 interface MatchCardProps {
   match: MatchResponse;
@@ -21,6 +23,7 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
   const navigate = useNavigate();
 
   const { toggleSelection, selections } = useBetSlipStore();
+  const { isBlocked } = useActiveBetBlocks(match.league_id);
 
   const markets = sortMarketsByType(match.markets || []);
   const previewMarkets = markets.slice(0, 3);
@@ -86,13 +89,19 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
                         const textClass = flash ? 'text-white' : 'text-neutral-900 dark:text-white';
                         const labelClass = flash ? 'text-white/80' : 'text-neutral-500 dark:text-neutral-400';
 
-                        const isBetDisabled = market.status === 'SUSPENDED' || market.status === 'CANCELLED' || market.status === 'RESOLVED' || opt.status === 'BLOCKED' || match.status === 'FINISHED' || match.status === 'VOIDED';
+                        const isDuplicateTypeBlocked = isBlocked(market.type, market.match_id, market.id);
+                        const isBetDisabled = market.status === 'SUSPENDED' || market.status === 'CANCELLED' || market.status === 'RESOLVED' || opt.status === 'BLOCKED' || match.status === 'FINISHED' || match.status === 'VOIDED' || isDuplicateTypeBlocked;
 
                         return (
                           <Button 
                             variant="outline" 
                             disabled={isBetDisabled}
+                            title={isDuplicateTypeBlocked ? 'Ya tienes una apuesta activa en este tipo para este partido' : undefined}
                             onClick={() => {
+                              if (isDuplicateTypeBlocked) {
+                                toast.error('Ya tienes una apuesta activa en otro mercado del mismo tipo para este partido.');
+                                return;
+                              }
                               if (!isBetDisabled) {
                                 toggleSelection({
                                   leagueId: match.league_id,
@@ -103,7 +112,9 @@ export const MatchCard = ({ match, isAdmin }: MatchCardProps) => {
                                   currentOdds: currentOdds,
                                   matchTitle: match.title,
                                   matchTime: new Date(match.start_time).toISOString(),
-                                  matchStatus: match.status
+                                  matchStatus: match.status,
+                                  matchId: market.match_id,
+                                  marketType: market.type
                                 });
                               }
                             }}

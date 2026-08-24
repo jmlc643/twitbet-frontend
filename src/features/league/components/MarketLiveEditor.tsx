@@ -30,9 +30,13 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
   const invalidateMarket = () => {
     if (market.match_id) {
       queryClient.invalidateQueries({ queryKey: ['match-markets', market.match_id] });
+      queryClient.invalidateQueries({ queryKey: ['league-matches', market.league_id] });
+      queryClient.invalidateQueries({ queryKey: ['match-details'] });
     } else {
       queryClient.invalidateQueries({ queryKey: ['league-markets', market.league_id] });
     }
+    queryClient.invalidateQueries({ queryKey: ['league-markets'] });
+    queryClient.invalidateQueries({ queryKey: ['league-matches'] });
   };
 
   const statusMutation = useMutation({
@@ -89,6 +93,40 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
       const error = err as { response?: { data?: { error?: string; hint?: string } } };
       const errorData = error.response?.data;
       toast.error(errorData?.hint || errorData?.error || 'Error al agregar las opciones.');
+    }
+  });
+
+  const deleteMarketMutation = useMutation({
+    mutationFn: () => leagueApi.deleteMarket(market.id),
+    onSuccess: (data) => {
+      toast.success(data?.message || 'Mercado eliminado correctamente.');
+      invalidateMarket();
+    },
+    onError: (err: unknown) => {
+      const error = err as { response?: { status?: number; data?: { error?: string; code?: string } } };
+      const msg = error.response?.data?.error;
+      if (error.response?.status === 409) {
+        toast.error(msg || 'No se puede eliminar el mercado porque tiene apuestas asociadas.');
+      } else {
+        toast.error(msg || 'Error al eliminar el mercado.');
+      }
+    }
+  });
+
+  const deleteOptionMutation = useMutation({
+    mutationFn: (optionId: string) => leagueApi.deleteMarketOption(market.id, optionId),
+    onSuccess: (data) => {
+      toast.success(data?.message || 'Opción eliminada correctamente.');
+      invalidateMarket();
+    },
+    onError: (err: unknown) => {
+      const error = err as { response?: { status?: number; data?: { error?: string } } };
+      const msg = error.response?.data?.error;
+      if (error.response?.status === 409) {
+        toast.error(msg || 'No se puede eliminar la opción (mínimo 2 opciones o tiene apuestas).');
+      } else {
+        toast.error(msg || 'Error al eliminar la opción.');
+      }
     }
   });
 
@@ -170,6 +208,12 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
         onCancel={() => setIsCancelModalOpen(true)}
         onResolve={() => setIsResolveModalOpen(true)}
         onToggleStatus={handleStatusToggle}
+        onDelete={isFinished ? undefined : () => {
+          if (confirm(`¿Eliminar mercado "${market.name}"? Esta acción no se puede deshacer.`)) {
+            deleteMarketMutation.mutate();
+          }
+        }}
+        isDeleting={deleteMarketMutation.isPending}
       />
 
       <MarketOptionsGrid
@@ -179,6 +223,16 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
         isPendingStatus={optionStatusMutation.isPending}
         onOddsChange={handleOddsChange}
         onToggleOptionStatus={handleToggleOptionStatus}
+        onDeleteOption={(optionId) => {
+          if (market.options.length <= 2) {
+            toast.error('El mercado debe tener al menos 2 opciones.');
+            return;
+          }
+          if (confirm('¿Eliminar esta opción?')) {
+            deleteOptionMutation.mutate(optionId);
+          }
+        }}
+        isDeletingOption={deleteOptionMutation.isPending}
       />
 
       {!isFinished && (

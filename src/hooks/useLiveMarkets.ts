@@ -87,6 +87,26 @@ export const useLiveMarkets = () => {
 
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['match-markets'] }, updateMarketOdds);
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['league-markets'] }, updateMarketOdds);
+            queryClient.setQueriesData<GetMatchesResponse>({ queryKey: ['league-matches'] }, (oldData) => {
+              if (!oldData?.matches) return oldData;
+              return {
+                ...oldData,
+                matches: oldData.matches.map((match) => {
+                  if (!match.markets) return match;
+                  const patched = match.markets.map(m => {
+                    if (m.id !== data.market_id) return m;
+                    const newOptions = m.options.map(opt => {
+                      const updatedOpt = data.options.find(o => o.id === opt.id);
+                      if (!updatedOpt) return opt;
+                      return { ...opt, current_odds: updatedOpt.current_odds, status: updatedOpt.status ?? opt.status };
+                    });
+                    return { ...m, options: newOptions };
+                  });
+                  return { ...match, markets: patched };
+                })
+              };
+            });
+            queryClient.invalidateQueries({ queryKey: ['match-details'] });
             queryClient.invalidateQueries({ queryKey: ['user-combined-bets'] });
           }
 
@@ -206,6 +226,47 @@ export const useLiveMarkets = () => {
             if (data.status === 'VOIDED' || data.status === 'FINISHED') {
               queryClient.invalidateQueries({ queryKey: ['user-leagues'] });
             }
+          }
+
+          if (data.type === 'MARKET_DELETED') {
+            const removeMarket = (oldMarkets: MarketResponse[] | undefined) => {
+              if (!oldMarkets) return oldMarkets;
+              return oldMarkets.filter(m => m.id !== data.market_id);
+            };
+            queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['match-markets'] }, removeMarket);
+            queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['league-markets'] }, removeMarket);
+            queryClient.setQueriesData<GetMatchesResponse>({ queryKey: ['league-matches'] }, (oldData) => {
+              if (!oldData?.matches) return oldData;
+              return {
+                ...oldData,
+                matches: oldData.matches.map((match) => ({
+                  ...match,
+                  markets: (match.markets || []).filter((m: MarketResponse) => m.id !== data.market_id)
+                }))
+              };
+            });
+            queryClient.invalidateQueries({ queryKey: ['match-details'] });
+            toast.info('Un mercado fue eliminado.');
+          }
+
+          if (data.type === 'MARKET_OPTION_DELETED') {
+            const removeOption = (oldMarkets: MarketResponse[] | undefined) => {
+              if (!oldMarkets) return oldMarkets;
+              return oldMarkets.map(m => m.id !== data.market_id ? m : { ...m, options: m.options.filter(o => o.id !== data.option_id) });
+            };
+            queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['match-markets'] }, removeOption);
+            queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['league-markets'] }, removeOption);
+            queryClient.setQueriesData<GetMatchesResponse>({ queryKey: ['league-matches'] }, (oldData) => {
+              if (!oldData?.matches) return oldData;
+              return {
+                ...oldData,
+                matches: oldData.matches.map((match) => ({
+                  ...match,
+                  markets: (match.markets || []).map((m: MarketResponse) => m.id !== data.market_id ? m : { ...m, options: m.options.filter(o => o.id !== data.option_id) })
+                }))
+              };
+            });
+            queryClient.invalidateQueries({ queryKey: ['match-details'] });
           }
 
           if (data.type === 'PARTICIPANT_BALANCE_UPDATED') {

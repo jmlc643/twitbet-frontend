@@ -68,8 +68,10 @@ export const PlaceBetModal = ({
       }, 2000);
     },
     onError: (err: unknown) => {
-      const error = err as { response?: { status?: number; data?: { error?: string; current_odds?: number } } };
-      if (error.response?.status === 409 && error.response?.data?.current_odds) {
+      const error = err as { response?: { status?: number; data?: { error?: string; code?: string; current_odds?: number } } };
+      if (error.response?.status === 409 && error.response?.data?.code === 'DUPLICATE_MARKET_TYPE') {
+        setError(error.response.data.error || 'Ya tienes una apuesta activa en otro mercado del mismo tipo para este partido.');
+      } else if (error.response?.status === 409 && error.response?.data?.current_odds) {
         setDriftError({ current_odds: error.response.data.current_odds });
         setError(`Las cuotas para esta opción han cambiado de ${currentOdds} a ${error.response.data.current_odds}. ¿Deseas aceptar los cambios y apostar?`);
       } else {

@@ -10,6 +10,8 @@ import { formatDateDDMMYYYY, formatTimeHHMM } from '@/lib/date';
 import { Button } from '@/components/ui/button';
 import { AnimatedOdds } from '@/components/ui/AnimatedOdds';
 import { useBetSlipStore } from '@/store/useBetSlipStore';
+import { useActiveBetBlocks } from '@/hooks/useActiveBetBlocks';
+import { toast } from 'sonner';
 
 export const MatchDetailsPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -21,6 +23,8 @@ export const MatchDetailsPage = () => {
     queryFn: () => leagueApi.getMatchDetails(slug!),
     enabled: !!slug,
   });
+
+  const { isBlocked } = useActiveBetBlocks(match?.league_id);
 
   if (isLoading) {
     return (
@@ -123,7 +127,8 @@ export const MatchDetailsPage = () => {
                                 const labelClass = flash ? 'text-white/80' : 'text-neutral-500 dark:text-neutral-400';
                                 const isOptionBlocked = opt.status === 'BLOCKED';
                                 const isMarketLocked = market.status === 'SUSPENDED' || market.status === 'CANCELLED' || market.status === 'RESOLVED';
-                                const isBetDisabled = isOptionBlocked || isMarketLocked;
+                                const isDuplicateTypeBlocked = isBlocked(market.type, market.match_id, market.id);
+                                const isBetDisabled = isOptionBlocked || isMarketLocked || isDuplicateTypeBlocked;
 
                                 return (
                                   <div 
@@ -133,6 +138,10 @@ export const MatchDetailsPage = () => {
                                         : flashClass
                                     }`}
                                     onClick={() => {
+                                      if (isDuplicateTypeBlocked) {
+                                        toast.error('Ya tienes una apuesta activa en otro mercado del mismo tipo para este partido.');
+                                        return;
+                                      }
                                       if (!isBetDisabled) {
                                         toggleSelection({
                                           leagueId: match.league_id,
@@ -143,7 +152,9 @@ export const MatchDetailsPage = () => {
                                           currentOdds: currentOdds,
                                           matchTitle: match.title,
                                           matchTime: date.toISOString(),
-                                          matchStatus: match.status
+                                          matchStatus: match.status,
+                                          matchId: market.match_id,
+                                          marketType: market.type
                                         });
                                       }
                                     }}

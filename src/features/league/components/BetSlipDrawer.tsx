@@ -78,13 +78,15 @@ export const BetSlipDrawer = () => {
   }
 
   function handleError(err: unknown) {
-    const error = err as { response?: { status?: number; data?: { error?: string; updated_odds?: Record<string, number> } } };
-    if (error.response?.status === 409) {
+    const error = err as { response?: { status?: number; data?: { error?: string; code?: string; updated_odds?: Record<string, number> } } };
+    if (error.response?.status === 409 && error.response.data?.code === 'DUPLICATE_MARKET_TYPE') {
+      setError(error.response.data.error || 'Ya tienes una apuesta activa en otro mercado del mismo tipo para este partido. Solo se permite una apuesta por tipo y partido (excepto OTRO).');
+    } else if (error.response?.status === 409) {
       if (error.response.data?.updated_odds) {
         updateOddsFromDrift(error.response.data.updated_odds);
         setError('Algunas cuotas han cambiado. Hemos actualizado tu boleto con los nuevos valores. Revisa el nuevo pago potencial y confirma si deseas apostar.');
       } else {
-        setError('Las cuotas han cambiado. Por favor, vacía tu boleto y vuelve a seleccionar las opciones actualizadas.');
+        setError(error.response?.data?.error || 'Las cuotas han cambiado. Por favor, vacía tu boleto y vuelve a seleccionar las opciones actualizadas.');
       }
       queryClient.invalidateQueries({ queryKey: ['league', leagueId] });
       queryClient.invalidateQueries({ queryKey: ['match-markets'] });

@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Lock, Unlock, CheckCircle, Ban, Layers } from 'lucide-react';
+import { Lock, Unlock, CheckCircle, Ban, Layers, Trash2 } from 'lucide-react';
 import type { MarketResponse } from '@/features/league/types/league.types';
 import { mapMarketType } from '@/features/league/utils/marketTypeMapper';
 
@@ -13,6 +13,8 @@ interface MarketHeaderProps {
   onCancel: () => void;
   onResolve: () => void;
   onToggleStatus: () => void;
+  onDelete?: () => void;
+  isDeleting?: boolean;
 }
 
 export const MarketHeader = ({
@@ -24,7 +26,9 @@ export const MarketHeader = ({
   isPending,
   onCancel,
   onResolve,
-  onToggleStatus
+  onToggleStatus,
+  onDelete,
+  isDeleting
 }: MarketHeaderProps) => {
   return (
     <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
@@ -86,6 +90,19 @@ export const MarketHeader = ({
               <><Lock className="w-4 h-4 mr-2" /> Bloquear</>
             )}
           </Button>
+          {onDelete && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onDelete}
+              disabled={isDeleting || isPending}
+              className="border-neutral-300 text-neutral-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:border-neutral-700 dark:text-neutral-400"
+              title="Eliminar mercado (solo sin apuestas activas y no resuelto)"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              {isDeleting ? 'Eliminando...' : 'Eliminar'}
+            </Button>
+          )}
         </div>
       )}
     </div>

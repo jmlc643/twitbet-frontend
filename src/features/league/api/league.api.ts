@@ -222,5 +222,15 @@ export const leagueApi = {
   cashoutCombinedBet: async (betId: string): Promise<{ message: string; cashout_value: number }> => {
     const response = await api.post<{ message: string; cashout_value: number }>(`/combined-bets/${betId}/cashout`);
     return response.data;
+  },
+
+  deleteMarket: async (marketId: string): Promise<{ message: string }> => {
+    const response = await api.delete<{ message: string }>(`/markets/${marketId}`);
+    return response.data;
+  },
+
+  deleteMarketOption: async (marketId: string, optionId: string): Promise<{ message: string }> => {
+    const response = await api.delete<{ message: string }>(`/markets/${marketId}/options/${optionId}`);
+    return response.data;
   }
 };

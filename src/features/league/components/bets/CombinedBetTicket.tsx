@@ -7,6 +7,7 @@ import { leagueApi } from '@/features/league/api/league.api';
 import { formatDateTimeDDMMYYYY } from '@/lib/date';
 import type { CombinedBetResponse } from '@/features/league/types/league.types';
 import { CombinedBetLegs } from './CombinedBetLegs';
+import { toast } from 'sonner';
 
 interface CombinedBetTicketProps {
   bet: CombinedBetResponse;
@@ -57,6 +58,20 @@ export const CombinedBetTicket = ({ bet }: CombinedBetTicketProps) => {
       queryClient.invalidateQueries({ queryKey: ['user-combined-bets'] });
       queryClient.invalidateQueries({ queryKey: ['participantMe'] });
       setIsCashoutOpen(false);
+      toast.success('Cashout realizado con éxito.');
+    },
+    onError: (err: unknown) => {
+      const error = err as { response?: { status?: number; data?: { error?: string; code?: string } } };
+      const data = error.response?.data;
+      if (error.response?.status === 409 && data?.code === 'CASHOUT_NOT_AVAILABLE') {
+        toast.error(data.error || 'Cashout no disponible: mercado suspendido/resuelto.');
+      } else if (error.response?.status === 409) {
+        toast.error(data?.error || 'Cashout no disponible en este momento.');
+      } else {
+        toast.error(data?.error || 'Error al realizar cashout.');
+      }
+      setIsCashoutOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['user-combined-bets'] });
     },
   });
 

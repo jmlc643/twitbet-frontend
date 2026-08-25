@@ -1,19 +1,18 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { leagueApi } from '@/features/league/api/league.api';
 import { Button } from '@/components/ui/button';
 import { Save } from 'lucide-react';
-import type { MarketOptionRequest, MarketResponse, MarketOptionStatus } from '@/features/league/types/league.types';
+import type { MarketResponse, MarketOptionStatus } from '@/features/league/types/league.types';
 
 import { MarketResolveModal } from './MarketResolveModal';
 import { MarketCancelModal } from './MarketCancelModal';
 import { MarketHeader } from './MarketHeader';
 import { MarketOptionsGrid } from './MarketOptionsGrid';
 import { MarketAddOptions } from './MarketAddOptions';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
+import { useMarketMutations } from '../hooks/useMarketMutations';
 
 export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
-  const queryClient = useQueryClient();
   const [odds, setOdds] = useState<Record<string, number>>(() => {
     const initialOdds: Record<string, number> = {};
     market.options.forEach(opt => {
@@ -26,70 +25,36 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isAddingOptions, setIsAddingOptions] = useState(false);
   const [newOptions, setNewOptions] = useState<{ name: string; odds: string }[]>([]);
+  
+  const [isDeleteMarketModalOpen, setIsDeleteMarketModalOpen] = useState(false);
+  const [optionToDelete, setOptionToDelete] = useState<string | null>(null);
 
-  const invalidateMarket = () => {
-    if (market.match_id) {
-      queryClient.invalidateQueries({ queryKey: ['match-markets', market.match_id] });
-    } else {
-      queryClient.invalidateQueries({ queryKey: ['league-markets', market.league_id] });
-    }
-  };
+  const [prevOptions, setPrevOptions] = useState(market.options);
 
-  const statusMutation = useMutation({
-    mutationFn: (newStatus: 'ACTIVE' | 'SUSPENDED') =>
-      leagueApi.updateMarketStatus(market.id, { status: newStatus }),
-    onSuccess: invalidateMarket
-  });
-
-  const oddsMutation = useMutation({
-    mutationFn: (newOdds: Record<string, number>) =>
-      leagueApi.updateMarketOdds(market.id, { options_odds: newOdds }),
-    onSuccess: (data) => {
-      if (data?.odds) {
-        setOdds(data.odds);
-      }
-      invalidateMarket();
-      toast.success(data?.message || 'Cuotas actualizadas exitosamente');
-    },
-    onError: (err: unknown) => {
-      const error = err as { response?: { status?: number; data?: { error?: string; hint?: string } } };
-      const errorData = error.response?.data;
-      
-      if (error.response?.status === 422) {
-        if (errorData?.hint) {
-          toast.error(errorData.hint);
-        } else {
-          toast.error(errorData?.error ? `Error: ${errorData.error}` : 'Error de validación al actualizar cuotas.');
+  if (market.options !== prevOptions) {
+    setPrevOptions(market.options);
+    setOdds((prevOdds) => {
+      let changed = false;
+      const newOdds = { ...prevOdds };
+      market.options.forEach(opt => {
+        if (newOdds[opt.id] !== opt.current_odds) {
+          newOdds[opt.id] = opt.current_odds;
+          changed = true;
         }
-      } else {
-        toast.error(errorData?.error || 'Error al actualizar las cuotas.');
-      }
-    }
-  });
+      });
+      return changed ? newOdds : prevOdds;
+    });
+  }
 
-  const optionStatusMutation = useMutation({
-    mutationFn: ({ optionId, status }: { optionId: string; status: MarketOptionStatus }) =>
-      leagueApi.updateMarketOptionStatus(market.id, optionId, { status }),
-    onSuccess: () => {
-      invalidateMarket();
-      toast.success('El estado de la opción fue actualizado.');
-    }
-  });
-
-  const addOptionsMutation = useMutation({
-    mutationFn: (options: MarketOptionRequest[]) =>
-      leagueApi.addMarketOptions(market.id, { options }),
-    onSuccess: () => {
-      invalidateMarket();
-      setNewOptions([]);
-      setIsAddingOptions(false);
-      toast.success('Opciones agregadas exitosamente.');
-    },
-    onError: (err: unknown) => {
-      const error = err as { response?: { data?: { error?: string; hint?: string } } };
-      const errorData = error.response?.data;
-      toast.error(errorData?.hint || errorData?.error || 'Error al agregar las opciones.');
-    }
+  const {
+    statusMutation,
+    oddsMutation,
+    optionStatusMutation,
+    addOptionsMutation,
+    deleteMarketMutation,
+    deleteOptionMutation,
+  } = useMarketMutations(market, {
+    onOddsUpdate: (newOdds) => setOdds(newOdds),
   });
 
   const handleStatusToggle = () => {
@@ -170,6 +135,10 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
         onCancel={() => setIsCancelModalOpen(true)}
         onResolve={() => setIsResolveModalOpen(true)}
         onToggleStatus={handleStatusToggle}
+        onDelete={isFinished ? undefined : () => {
+          setIsDeleteMarketModalOpen(true);
+        }}
+        isDeleting={deleteMarketMutation.isPending}
       />
 
       <MarketOptionsGrid
@@ -179,6 +148,14 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
         isPendingStatus={optionStatusMutation.isPending}
         onOddsChange={handleOddsChange}
         onToggleOptionStatus={handleToggleOptionStatus}
+        onDeleteOption={(optionId) => {
+          if (market.options.length <= 2) {
+            toast.error('El mercado debe tener al menos 2 opciones.');
+            return;
+          }
+          setOptionToDelete(optionId);
+        }}
+        isDeletingOption={deleteOptionMutation.isPending}
       />
 
       {!isFinished && (
@@ -222,6 +199,31 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
         market={market}
         isOpen={isCancelModalOpen}
         onOpenChange={setIsCancelModalOpen}
+      />
+
+      <ConfirmModal
+        isOpen={isDeleteMarketModalOpen}
+        onOpenChange={setIsDeleteMarketModalOpen}
+        title="¿Eliminar Mercado?"
+        description={`¿Estás seguro de eliminar el mercado "${market.name}"? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar Mercado"
+        onConfirm={() => deleteMarketMutation.mutate()}
+        isConfirming={deleteMarketMutation.isPending}
+      />
+
+      <ConfirmModal
+        isOpen={optionToDelete !== null}
+        onOpenChange={(open) => !open && setOptionToDelete(null)}
+        title="¿Eliminar Opción?"
+        description="¿Estás seguro de que deseas eliminar esta opción? Esta acción no se puede deshacer."
+        confirmText="Eliminar Opción"
+        onConfirm={() => {
+          if (optionToDelete) {
+            deleteOptionMutation.mutate(optionToDelete);
+            setOptionToDelete(null);
+          }
+        }}
+        isConfirming={deleteOptionMutation.isPending}
       />
     </div>
   );

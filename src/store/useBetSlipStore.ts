@@ -10,6 +10,8 @@ export interface BetSelection {
   matchTitle?: string;
   matchTime?: string;
   matchStatus?: string;
+  matchId?: string | null;
+  marketType?: string;
 }
 
 interface BetSlipState {
@@ -32,6 +34,15 @@ export const useBetSlipStore = create<BetSlipState>((set, get) => ({
     
     if (currentSelections.some(s => s.optionId === selection.optionId)) {
       return;
+    }
+    
+    if (selection.marketType && selection.marketType !== 'OTHER') {
+      const duplicateInSlip = currentSelections.some(s => 
+        s.marketType === selection.marketType && (s.matchId ?? null) === (selection.matchId ?? null) && s.marketId !== selection.marketId
+      );
+      if (duplicateInSlip) {
+        return;
+      }
     }
     
     const filteredSelections = currentSelections.filter(s => s.marketId !== selection.marketId);

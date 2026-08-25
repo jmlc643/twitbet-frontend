@@ -1,6 +1,6 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Lock, Unlock } from 'lucide-react';
+import { Lock, Unlock, Trash2 } from 'lucide-react';
 import type { MarketResponse, MarketOptionStatus } from '@/features/league/types/league.types';
 
 interface MarketOptionsGridProps {
@@ -10,6 +10,8 @@ interface MarketOptionsGridProps {
   isPendingStatus: boolean;
   onOddsChange: (optionId: string, value: string) => void;
   onToggleOptionStatus: (optionId: string, currentStatus: MarketOptionStatus | undefined) => void;
+  onDeleteOption?: (optionId: string) => void;
+  isDeletingOption?: boolean;
 }
 
 export const MarketOptionsGrid = ({
@@ -18,7 +20,9 @@ export const MarketOptionsGrid = ({
   isFinished,
   isPendingStatus,
   onOddsChange,
-  onToggleOptionStatus
+  onToggleOptionStatus,
+  onDeleteOption,
+  isDeletingOption
 }: MarketOptionsGridProps) => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -32,16 +36,30 @@ export const MarketOptionsGrid = ({
                 {isBlocked && <span className="ml-1 text-[10px] font-bold uppercase">(Bloqueada)</span>}
               </label>
               {!isFinished && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={`h-6 w-6 shrink-0 ${isBlocked ? 'text-emerald-600 hover:text-emerald-700' : 'text-red-500 hover:text-red-600'}`}
-                  onClick={() => onToggleOptionStatus(opt.id, opt.status)}
-                  disabled={isPendingStatus}
-                  title={isBlocked ? 'Desbloquear opción' : 'Bloquear opción'}
-                >
-                  {isBlocked ? <Unlock className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
-                </Button>
+                <div className="flex items-center gap-0.5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`h-6 w-6 shrink-0 ${isBlocked ? 'text-emerald-600 hover:text-emerald-700' : 'text-red-500 hover:text-red-600'}`}
+                    onClick={() => onToggleOptionStatus(opt.id, opt.status)}
+                    disabled={isPendingStatus}
+                    title={isBlocked ? 'Desbloquear opción' : 'Bloquear opción'}
+                  >
+                    {isBlocked ? <Unlock className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
+                  </Button>
+                  {onDeleteOption && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 shrink-0 text-neutral-400 hover:text-red-600"
+                      onClick={() => onDeleteOption(opt.id)}
+                      disabled={isDeletingOption || market.options.length <= 2}
+                      title={market.options.length <= 2 ? 'Mínimo 2 opciones' : 'Eliminar opción'}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  )}
+                </div>
               )}
             </div>
             <Input

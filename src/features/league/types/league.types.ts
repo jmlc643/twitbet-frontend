@@ -233,7 +233,26 @@ export interface WsParticipantBalanceUpdated {
   user_id: string;
 }
 
-export type WebSocketEvent = WsMarketStatusChanged | WsOddsUpdated | WsMatchStatusChanged | WsMarketResolved | WsParticipantBalanceUpdated | WsMarketCreated | WsMarketOptionsUpdated;
+export interface WsMarketDeleted {
+  type: 'MARKET_DELETED';
+  market_id: string;
+}
+
+export interface WsMarketOptionDeleted {
+  type: 'MARKET_OPTION_DELETED';
+  market_id: string;
+  option_id: string;
+}
+
+export type WebSocketEvent = WsMarketStatusChanged | WsOddsUpdated | WsMatchStatusChanged | WsMarketResolved | WsParticipantBalanceUpdated | WsMarketCreated | WsMarketOptionsUpdated | WsMarketDeleted | WsMarketOptionDeleted;
+
+export interface ApiErrorResponse {
+  error?: string;
+  code?: string;
+  hint?: string;
+  current_odds?: number;
+  updated_odds?: Record<string, number>;
+}
 
 export interface ParticipantMeResponse {
   id: string;

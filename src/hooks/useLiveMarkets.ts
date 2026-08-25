@@ -108,6 +108,7 @@ export const useLiveMarkets = () => {
             });
             queryClient.invalidateQueries({ queryKey: ['match-details'] });
             queryClient.invalidateQueries({ queryKey: ['user-combined-bets'] });
+            queryClient.invalidateQueries({ queryKey: ['participantBets'] });
           }
 
           if (data.type === 'MARKET_CREATED') {
@@ -151,6 +152,7 @@ export const useLiveMarkets = () => {
 
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['match-markets'] }, replaceMarket);
             queryClient.setQueriesData<MarketResponse[]>({ queryKey: ['league-markets'] }, replaceMarket);
+            queryClient.invalidateQueries({ queryKey: ['participantBets'] });
           }
           
           if (data.type === 'MARKET_STATUS_CHANGED' && (data.status === 'RESOLVED' || data.status === 'VOIDED')) {

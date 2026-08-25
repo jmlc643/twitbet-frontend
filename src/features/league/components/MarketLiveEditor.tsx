@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Save } from 'lucide-react';
@@ -29,7 +29,10 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
   const [isDeleteMarketModalOpen, setIsDeleteMarketModalOpen] = useState(false);
   const [optionToDelete, setOptionToDelete] = useState<string | null>(null);
 
-  useEffect(() => {
+  const [prevOptions, setPrevOptions] = useState(market.options);
+
+  if (market.options !== prevOptions) {
+    setPrevOptions(market.options);
     setOdds((prevOdds) => {
       let changed = false;
       const newOdds = { ...prevOdds };
@@ -41,7 +44,7 @@ export const MarketLiveEditor = ({ market }: { market: MarketResponse }) => {
       });
       return changed ? newOdds : prevOdds;
     });
-  }, [market.options]);
+  }
 
   const {
     statusMutation,

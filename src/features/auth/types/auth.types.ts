@@ -4,6 +4,11 @@ export interface User {
   email: string;
   avatar_url?: string;
   created_at: string;
+  stats?: {
+    leagues: number;
+    wins: number;
+    effectiveness: number;
+  };
 }
 
 export interface AuthResponse {
@@ -48,4 +53,4 @@ export interface ChangePasswordRequest {
   old_password: string;
   new_password: string;
   confirm_password: string;
-}
+}

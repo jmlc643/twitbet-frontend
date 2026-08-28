@@ -39,18 +39,24 @@ export const ProfileCard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-neutral-200 dark:border-neutral-800">
-          <div className="text-center">
-            <span className="block text-xs uppercase font-bold text-neutral-500 dark:text-neutral-400">Ligas</span>
-            <span className="text-xl font-black text-red-600">3</span>
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-8 pt-6 border-t border-neutral-200 dark:border-neutral-800">
+          <div className="flex flex-col items-center justify-between text-center" title="Ligas en las que participas">
+            <div className="flex-1 flex items-center justify-center">
+              <span className="text-[10px] sm:text-xs uppercase font-bold text-neutral-500 dark:text-neutral-400">Ligas</span>
+            </div>
+            <span className="text-xl font-black text-red-600 mt-1">{user?.stats?.leagues || 0}</span>
           </div>
-          <div className="text-center">
-            <span className="block text-xs uppercase font-bold text-neutral-500 dark:text-neutral-400">Ganadas</span>
-            <span className="text-xl font-black text-green-600 dark:text-green-500">12</span>
+          <div className="flex flex-col items-center justify-between text-center" title="Apuestas Ganadas">
+            <div className="flex-1 flex items-center justify-center">
+              <span className="text-[10px] sm:text-xs uppercase font-bold text-neutral-500 dark:text-neutral-400 leading-tight">Apuestas<br/>Ganadas</span>
+            </div>
+            <span className="text-xl font-black text-green-600 dark:text-green-500 mt-1">{user?.stats?.wins || 0}</span>
           </div>
-          <div className="text-center">
-            <span className="block text-xs uppercase font-bold text-neutral-500 dark:text-neutral-400">Efectividad</span>
-            <span className="text-xl font-black text-amber-500">68%</span>
+          <div className="flex flex-col items-center justify-between text-center" title="Efectividad de Apuestas">
+            <div className="flex-1 flex items-center justify-center">
+              <span className="text-[10px] sm:text-xs uppercase font-bold text-neutral-500 dark:text-neutral-400">Efectividad</span>
+            </div>
+            <span className="text-xl font-black text-amber-500 mt-1">{user?.stats?.effectiveness || 0}%</span>
           </div>
         </div>
       </CardContent>
